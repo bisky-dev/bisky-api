@@ -1,6 +1,9 @@
 package httpx
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/keithics/devops-dashboard/api/internal/httperr"
+)
 
 func Get[T any](c *gin.Context, key string) (T, bool) {
 	v, ok := c.Get(key)
@@ -30,4 +33,15 @@ func MustGet[T any](c *gin.Context, key string) T {
 	}
 
 	return val
+}
+
+func AbortIfMissingContext[T any](c *gin.Context, key string) (T, bool) {
+	val, ok := Get[T](c, key)
+	if ok {
+		return val, true
+	}
+
+	httperr.Abort(c, httperr.Internal("missing request context"))
+	var zero T
+	return zero, false
 }

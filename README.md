@@ -58,3 +58,6 @@ make dev
 ## Endpoint
 
 - `GET /health`
+- `POST /auth/register`
+- `POST /auth/login`
+- `POST /auth/forgot-password`
