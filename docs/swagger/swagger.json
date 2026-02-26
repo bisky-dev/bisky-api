@@ -957,6 +957,9 @@
                 "episodeCount": {
                     "type": "integer"
                 },
+                "externalId": {
+                    "type": "string"
+                },
                 "posterUrl": {
                     "type": "string"
                 },
@@ -1018,6 +1021,9 @@
                 "episodeCount": {
                     "type": "integer"
                 },
+                "externalId": {
+                    "type": "string"
+                },
                 "posterUrl": {
                     "type": "string"
                 },
@@ -1061,6 +1067,9 @@
                 },
                 "episodeCount": {
                     "type": "integer"
+                },
+                "externalId": {
+                    "type": "string"
                 },
                 "posterUrl": {
                     "type": "string"
@@ -1108,6 +1117,9 @@
                 },
                 "episodeCount": {
                     "type": "integer"
+                },
+                "externalId": {
+                    "type": "string"
                 },
                 "internalShowId": {
                     "type": "string"
@@ -1158,6 +1170,9 @@
                 },
                 "episodeCount": {
                     "type": "integer"
+                },
+                "externalId": {
+                    "type": "string"
                 },
                 "posterUrl": {
                     "type": "string"

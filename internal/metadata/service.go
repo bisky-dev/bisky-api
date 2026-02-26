@@ -24,6 +24,7 @@ func (s *Service) Search(ctx context.Context, provider worker.ProviderName, quer
 
 func (s *Service) AddShow(ctx context.Context, req AddShowRequest) (AddShowResponse, error) {
 	created, err := s.jobShow.EnqueueFromSearchResult(ctx, jobshow.EnqueueFromSearchResultParams{
+		ExternalID:     req.ExternalID,
 		TitlePreferred: req.TitlePreferred,
 		TitleOriginal:  req.TitleOriginal,
 		AltTitles:      req.AltTitles,

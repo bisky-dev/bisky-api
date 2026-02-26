@@ -24,6 +24,7 @@ type Service struct {
 }
 
 type Show struct {
+	ExternalID     string   `json:"externalId,omitempty"`
 	TitlePreferred string   `json:"titlePreferred"`
 	TitleOriginal  *string  `json:"titleOriginal,omitempty"`
 	AltTitles      []string `json:"altTitles"`

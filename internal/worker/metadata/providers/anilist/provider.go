@@ -20,6 +20,7 @@ const (
 	defaultPage     = 1
 	defaultPageSize = 10
 	maxPageSize     = 50
+	idPrefix        = "anilist:"
 	searchQuery     = `query ($query: String!, $page: Int!, $perPage: Int!) {
   Page(page: $page, perPage: $perPage) {
     media(search: $query, type: ANIME, sort: SEARCH_MATCH) {
@@ -113,6 +114,7 @@ func (p *Provider) Search(ctx context.Context, query string, opts metadata.Searc
 
 		hits = append(hits, metadata.SearchHit{
 			Show: showmodel.Show{
+				ExternalID:     formatExternalID(strconv.FormatInt(media.ID, 10)),
 				TitlePreferred: titlePreferred,
 				TitleOriginal:  titleOriginal,
 				AltTitles:      buildAniListAltTitles(titlePreferred, titleOriginal, media.Title, media.Synonyms),
@@ -158,6 +160,7 @@ func (p *Provider) GetShow(ctx context.Context, externalID string) (metadata.Sho
 
 	return metadata.Show{
 		Show: showmodel.Show{
+			ExternalID:     formatExternalID(strconv.FormatInt(response.Data.Media.ID, 10)),
 			TitlePreferred: titlePreferred,
 			TitleOriginal:  titleOriginal,
 			AltTitles:      buildAniListAltTitles(titlePreferred, titleOriginal, response.Data.Media.Title, response.Data.Media.Synonyms),
@@ -203,7 +206,7 @@ func (p *Provider) ListEpisodes(ctx context.Context, externalID string, opts met
 
 		episodes = append(episodes, metadata.Episode{
 			Provider:      metadata.ProviderAniList,
-			ExternalID:    fmt.Sprintf("%d:%d", mediaID, item.Episode),
+			ExternalID:    formatExternalID(fmt.Sprintf("%d:%d", mediaID, item.Episode)),
 			SeasonNumber:  seasonNumber,
 			EpisodeNumber: item.Episode,
 			Title:         title,
@@ -266,11 +269,24 @@ func firstGraphQLError(items []graphQLError) error {
 }
 
 func parseExternalID(value string) (int64, error) {
-	id, err := strconv.ParseInt(strings.TrimSpace(value), 10, 64)
+	normalized := strings.TrimSpace(value)
+	normalized = strings.TrimPrefix(strings.ToLower(normalized), idPrefix)
+	id, err := strconv.ParseInt(strings.TrimSpace(normalized), 10, 64)
 	if err != nil || id <= 0 {
 		return 0, fmt.Errorf("anilist external id must be a positive integer")
 	}
 	return id, nil
+}
+
+func formatExternalID(value string) string {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return ""
+	}
+	if strings.HasPrefix(strings.ToLower(value), idPrefix) {
+		return value
+	}
+	return idPrefix + value
 }
 
 func normalizePage(value int) int {

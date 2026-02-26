@@ -26,6 +26,7 @@ const (
 	defaultPage     = 1
 	defaultPageSize = 10
 	maxPageSize     = 100
+	idPrefix        = "tvdb:"
 )
 
 func New() *Provider {
@@ -72,6 +73,7 @@ func (p *Provider) Search(ctx context.Context, query string, opts metadata.Searc
 
 		hits = append(hits, metadata.SearchHit{
 			Show: showmodel.Show{
+				ExternalID:     formatExternalID(normalizeSeriesID(firstString(item, "id", "tvdb_id"))),
 				TitlePreferred: titlePreferred,
 				TitleOriginal:  titleOriginal,
 				AltTitles:      extractTVDBAltTitles(item, titlePreferred, titleOriginal),
@@ -152,6 +154,7 @@ func (p *Provider) GetShow(ctx context.Context, externalID string) (metadata.Sho
 
 	return metadata.Show{
 		Show: showmodel.Show{
+			ExternalID:     formatExternalID(id),
 			TitlePreferred: titlePreferred,
 			TitleOriginal:  stringPtr(firstString(item, "name")),
 			AltTitles:      extractTVDBAltTitles(item, titlePreferred, stringPtr(firstString(item, "name"))),
@@ -213,7 +216,7 @@ func (p *Provider) ListEpisodes(ctx context.Context, externalID string, opts met
 
 		episodes = append(episodes, metadata.Episode{
 			Provider:       metadata.ProviderTVDB,
-			ExternalID:     epID,
+			ExternalID:     formatExternalID(epID),
 			SeasonNumber:   seasonNumber,
 			EpisodeNumber:  episodeNumber,
 			Title:          title,
@@ -542,12 +545,26 @@ func normalizeSeriesID(value string) string {
 	if value == "" {
 		return ""
 	}
+	if strings.HasPrefix(strings.ToLower(value), idPrefix) {
+		value = strings.TrimSpace(value[len(idPrefix):])
+	}
 
 	// TVDB search frequently returns prefixed IDs like "series-121361".
 	if strings.HasPrefix(strings.ToLower(value), "series-") {
 		return strings.TrimSpace(value[len("series-"):])
 	}
 	return value
+}
+
+func formatExternalID(value string) string {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return ""
+	}
+	if strings.HasPrefix(strings.ToLower(value), idPrefix) {
+		return value
+	}
+	return idPrefix + value
 }
 
 func mapShowType(value string) string {

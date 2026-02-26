@@ -266,7 +266,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"titlePreferred\": \"Breaking Bad\",\n  \"titleOriginal\": \"Breaking Bad\",\n  \"altTitles\": [],\n  \"type\": \"tv\",\n  \"status\": \"finished\",\n  \"synopsis\": \"A high school chemistry teacher turns to making meth.\",\n  \"bannerUrl\": \"https://artworks.thetvdb.com/example.jpg\"\n}"
+              "raw": "{\n  \"externalId\": \"121361\",\n  \"titlePreferred\": \"Breaking Bad\",\n  \"titleOriginal\": \"Breaking Bad\",\n  \"altTitles\": [],\n  \"type\": \"tv\",\n  \"status\": \"finished\",\n  \"synopsis\": \"A high school chemistry teacher turns to making meth.\",\n  \"bannerUrl\": \"https://artworks.thetvdb.com/example.jpg\"\n}"
             },
             "url": "{{baseUrl}}/metadata/show"
           }

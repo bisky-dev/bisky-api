@@ -13,6 +13,11 @@ func NewHandler(q *sqlc.Queries) *Handler {
 }
 
 func (s *Service) CreateShow(ctx context.Context, req createShowRequest) (sqlc.Show, error) {
+	externalIDs, err := marshalExternalID(req.ExternalID)
+	if err != nil {
+		return sqlc.Show{}, err
+	}
+
 	return s.q.CreateShow(ctx, sqlc.CreateShowParams{
 		TitlePreferred: req.TitlePreferred,
 		TitleOriginal:  req.TitleOriginal,
@@ -26,7 +31,7 @@ func (s *Service) CreateShow(ctx context.Context, req createShowRequest) (sqlc.S
 		BannerUrl:      req.BannerUrl,
 		SeasonCount:    req.SeasonCount,
 		EpisodeCount:   req.EpisodeCount,
-		ExternalIds:    []byte("{}"),
+		ExternalIds:    externalIDs,
 	})
 }
 
@@ -39,6 +44,11 @@ func (s *Service) GetShowByID(ctx context.Context, showID string) (sqlc.Show, er
 }
 
 func (s *Service) UpdateShow(ctx context.Context, showID string, req updateShowRequest) (sqlc.Show, error) {
+	externalIDs, err := marshalExternalID(req.ExternalID)
+	if err != nil {
+		return sqlc.Show{}, err
+	}
+
 	return s.q.UpdateShow(ctx, sqlc.UpdateShowParams{
 		InternalShowID: showID,
 		TitlePreferred: req.TitlePreferred,
@@ -53,7 +63,7 @@ func (s *Service) UpdateShow(ctx context.Context, showID string, req updateShowR
 		BannerUrl:      req.BannerUrl,
 		SeasonCount:    req.SeasonCount,
 		EpisodeCount:   req.EpisodeCount,
-		ExternalIds:    []byte("{}"),
+		ExternalIds:    externalIDs,
 	})
 }
 

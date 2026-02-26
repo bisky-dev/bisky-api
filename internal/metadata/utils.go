@@ -61,6 +61,7 @@ func getSearchInput(c *gin.Context) (worker.ProviderName, string, worker.SearchO
 }
 
 func normalizeAddShowRequest(req *AddShowRequest) {
+	req.ExternalID = strings.TrimSpace(req.ExternalID)
 	req.TitlePreferred = strings.TrimSpace(req.TitlePreferred)
 	req.TitleOriginal = httpx.TrimmedOrNil(req.TitleOriginal)
 	req.Type = strings.ToLower(strings.TrimSpace(req.Type))
@@ -74,6 +75,9 @@ func normalizeAddShowRequest(req *AddShowRequest) {
 }
 
 func validateAddShowRequest(req AddShowRequest) error {
+	if err := httpx.ValidateVar(req.ExternalID, "required,max=128", "externalId is invalid"); err != nil {
+		return err
+	}
 	if err := httpx.ValidateVar(req.TitlePreferred, "required,max=500", "titlePreferred is invalid"); err != nil {
 		return err
 	}

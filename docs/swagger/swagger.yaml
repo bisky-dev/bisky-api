@@ -143,6 +143,8 @@ definitions:
         type: string
       episodeCount:
         type: integer
+      externalId:
+        type: string
       posterUrl:
         type: string
       seasonCount:
@@ -183,6 +185,8 @@ definitions:
         type: string
       episodeCount:
         type: integer
+      externalId:
+        type: string
       posterUrl:
         type: string
       seasonCount:
@@ -212,6 +216,8 @@ definitions:
         type: string
       episodeCount:
         type: integer
+      externalId:
+        type: string
       posterUrl:
         type: string
       seasonCount:
@@ -243,6 +249,8 @@ definitions:
         type: string
       episodeCount:
         type: integer
+      externalId:
+        type: string
       internalShowId:
         type: string
       posterUrl:
@@ -276,6 +284,8 @@ definitions:
         type: string
       episodeCount:
         type: integer
+      externalId:
+        type: string
       posterUrl:
         type: string
       seasonCount:

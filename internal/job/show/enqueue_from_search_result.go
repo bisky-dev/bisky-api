@@ -22,7 +22,7 @@ INSERT INTO shows (
   episode_count,
   external_ids
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, '{}'::jsonb)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, jsonb_build_object('externalId', $13::text))
 RETURNING internal_show_id
 `
 
@@ -62,6 +62,7 @@ func (s *Service) EnqueueFromSearchResult(ctx context.Context, params EnqueueFro
 		params.BannerURL,
 		params.SeasonCount,
 		params.EpisodeCount,
+		params.ExternalID,
 	).Scan(&result.InternalShowID); err != nil {
 		return EnqueueFromSearchResultResult{}, err
 	}

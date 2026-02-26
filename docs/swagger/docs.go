@@ -960,6 +960,9 @@ const docTemplate = `{
                 "episodeCount": {
                     "type": "integer"
                 },
+                "externalId": {
+                    "type": "string"
+                },
                 "posterUrl": {
                     "type": "string"
                 },
@@ -1021,6 +1024,9 @@ const docTemplate = `{
                 "episodeCount": {
                     "type": "integer"
                 },
+                "externalId": {
+                    "type": "string"
+                },
                 "posterUrl": {
                     "type": "string"
                 },
@@ -1064,6 +1070,9 @@ const docTemplate = `{
                 },
                 "episodeCount": {
                     "type": "integer"
+                },
+                "externalId": {
+                    "type": "string"
                 },
                 "posterUrl": {
                     "type": "string"
@@ -1111,6 +1120,9 @@ const docTemplate = `{
                 },
                 "episodeCount": {
                     "type": "integer"
+                },
+                "externalId": {
+                    "type": "string"
                 },
                 "internalShowId": {
                     "type": "string"
@@ -1161,6 +1173,9 @@ const docTemplate = `{
                 },
                 "episodeCount": {
                     "type": "integer"
+                },
+                "externalId": {
+                    "type": "string"
                 },
                 "posterUrl": {
                     "type": "string"

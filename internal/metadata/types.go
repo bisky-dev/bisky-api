@@ -22,6 +22,7 @@ type Service struct {
 }
 
 type SearchHitResponse struct {
+	ExternalID     string   `json:"externalId,omitempty"`
 	TitlePreferred string   `json:"titlePreferred"`
 	TitleOriginal  *string  `json:"titleOriginal,omitempty"`
 	AltTitles      []string `json:"altTitles"`

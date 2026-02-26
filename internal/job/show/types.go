@@ -7,6 +7,7 @@ type Service struct {
 }
 
 type EnqueueFromSearchResultParams struct {
+	ExternalID     string
 	TitlePreferred string
 	TitleOriginal  *string
 	AltTitles      []string
