@@ -13,25 +13,49 @@ import (
 var showValidator = validator.New()
 
 func normalizeCreateShowRequest(req *createShowRequest) {
-	req.TitlePreferred = strings.TrimSpace(req.TitlePreferred)
-	req.TitleOriginal = httpx.TrimmedOrNil(req.TitleOriginal)
-	req.Synopsis = httpx.TrimmedOrNil(req.Synopsis)
-	req.StartDate = httpx.TrimmedOrNil(req.StartDate)
-	req.EndDate = httpx.TrimmedOrNil(req.EndDate)
-	req.PosterUrl = httpx.TrimmedOrNil(req.PosterUrl)
-	req.BannerUrl = httpx.TrimmedOrNil(req.BannerUrl)
-	req.AltTitles = normalizeAltTitles(req.AltTitles)
+	normalizeShowFields(
+		&req.TitlePreferred,
+		&req.TitleOriginal,
+		&req.Synopsis,
+		&req.StartDate,
+		&req.EndDate,
+		&req.PosterUrl,
+		&req.BannerUrl,
+		&req.AltTitles,
+	)
 }
 
 func normalizeUpdateShowRequest(req *updateShowRequest) {
-	req.TitlePreferred = strings.TrimSpace(req.TitlePreferred)
-	req.TitleOriginal = httpx.TrimmedOrNil(req.TitleOriginal)
-	req.Synopsis = httpx.TrimmedOrNil(req.Synopsis)
-	req.StartDate = httpx.TrimmedOrNil(req.StartDate)
-	req.EndDate = httpx.TrimmedOrNil(req.EndDate)
-	req.PosterUrl = httpx.TrimmedOrNil(req.PosterUrl)
-	req.BannerUrl = httpx.TrimmedOrNil(req.BannerUrl)
-	req.AltTitles = normalizeAltTitles(req.AltTitles)
+	normalizeShowFields(
+		&req.TitlePreferred,
+		&req.TitleOriginal,
+		&req.Synopsis,
+		&req.StartDate,
+		&req.EndDate,
+		&req.PosterUrl,
+		&req.BannerUrl,
+		&req.AltTitles,
+	)
+}
+
+func normalizeShowFields(
+	titlePreferred *string,
+	titleOriginal **string,
+	synopsis **string,
+	startDate **string,
+	endDate **string,
+	posterURL **string,
+	bannerURL **string,
+	altTitles *[]string,
+) {
+	*titlePreferred = strings.TrimSpace(*titlePreferred)
+	*titleOriginal = httpx.TrimmedOrNil(*titleOriginal)
+	*synopsis = httpx.TrimmedOrNil(*synopsis)
+	*startDate = httpx.TrimmedOrNil(*startDate)
+	*endDate = httpx.TrimmedOrNil(*endDate)
+	*posterURL = httpx.TrimmedOrNil(*posterURL)
+	*bannerURL = httpx.TrimmedOrNil(*bannerURL)
+	*altTitles = normalizeAltTitles(*altTitles)
 }
 
 func normalizeAltTitles(values []string) []string {
