@@ -35,6 +35,19 @@ VALUES ($1::uuid, 'pending')
 RETURNING internal_job_show_id, status, retry_count
 `
 
+const findPendingJobByExternalIDSQL = `
+SELECT
+  s.internal_show_id,
+  j.internal_job_show_id,
+  j.status,
+  j.retry_count
+FROM job_shows j
+JOIN shows s ON s.internal_show_id = j.show_id
+WHERE j.status = 'pending'
+  AND s.external_ids->>'externalId' = $1
+LIMIT 1
+`
+
 func (s *Service) EnqueueFromSearchResult(ctx context.Context, params EnqueueFromSearchResultParams) (EnqueueFromSearchResultResult, error) {
 	tx, err := s.pool.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
@@ -49,6 +62,23 @@ func (s *Service) EnqueueFromSearchResult(ctx context.Context, params EnqueueFro
 	}()
 
 	var result EnqueueFromSearchResultResult
+	err = tx.QueryRow(ctx, findPendingJobByExternalIDSQL, params.ExternalID).Scan(
+		&result.InternalShowID,
+		&result.InternalJobShowID,
+		&result.Status,
+		&result.RetryCount,
+	)
+	if err == nil {
+		if err := tx.Commit(ctx); err != nil {
+			return EnqueueFromSearchResultResult{}, err
+		}
+		committed = true
+		return result, nil
+	}
+	if err != pgx.ErrNoRows {
+		return EnqueueFromSearchResultResult{}, err
+	}
+
 	if err := tx.QueryRow(ctx, insertShowSQL,
 		params.TitlePreferred,
 		params.TitleOriginal,
