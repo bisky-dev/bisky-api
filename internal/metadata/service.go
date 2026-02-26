@@ -22,6 +22,14 @@ func (s *Service) Search(ctx context.Context, provider worker.ProviderName, quer
 	return s.worker.Search(ctx, provider, query, opts)
 }
 
+func (s *Service) GetShow(ctx context.Context, provider worker.ProviderName, externalID string) (worker.Show, error) {
+	return s.worker.GetShow(ctx, provider, externalID)
+}
+
+func (s *Service) ListEpisodes(ctx context.Context, provider worker.ProviderName, externalID string, opts worker.ListEpisodesOpts) ([]worker.Episode, error) {
+	return s.worker.ListEpisodes(ctx, provider, externalID, opts)
+}
+
 func (s *Service) AddShow(ctx context.Context, req AddShowRequest) (AddShowResponse, error) {
 	created, err := s.jobShow.EnqueueFromSearchResult(ctx, jobshow.EnqueueFromSearchResultParams{
 		ExternalID:     req.ExternalID,

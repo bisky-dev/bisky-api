@@ -266,9 +266,25 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"externalId\": \"121361\",\n  \"titlePreferred\": \"Breaking Bad\",\n  \"titleOriginal\": \"Breaking Bad\",\n  \"altTitles\": [],\n  \"type\": \"tv\",\n  \"status\": \"finished\",\n  \"synopsis\": \"A high school chemistry teacher turns to making meth.\",\n  \"bannerUrl\": \"https://artworks.thetvdb.com/example.jpg\"\n}"
+              "raw": "{\n  \"externalId\": \"tvdb:121361\",\n  \"titlePreferred\": \"Breaking Bad\",\n  \"titleOriginal\": \"Breaking Bad\",\n  \"altTitles\": [],\n  \"type\": \"tv\",\n  \"status\": \"finished\",\n  \"synopsis\": \"A high school chemistry teacher turns to making meth.\",\n  \"bannerUrl\": \"https://artworks.thetvdb.com/example.jpg\"\n}"
             },
             "url": "{{baseUrl}}/metadata/show"
+          }
+        },
+        {
+          "name": "GET /metadata/show/:externalId (tvdb)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/metadata/show/{{tvdbSeriesId}}?type=tvdb"
+          }
+        },
+        {
+          "name": "GET /metadata/episodes/:externalId (tvdb)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/metadata/episodes/{{tvdbSeriesId}}?type=tvdb&page=1&limit=25"
           }
         }
       ]

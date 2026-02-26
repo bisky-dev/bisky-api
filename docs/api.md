@@ -247,3 +247,11 @@ Search provider metadata by text query.
 ### `POST /metadata/show`
 
 Create a show using the same JSON shape returned by `GET /metadata/search`, then enqueue a job linked to that show.
+
+### `GET /metadata/show/{externalId}?type={type}`
+
+Get provider show details by provider-specific external ID.
+
+### `GET /metadata/episodes/{externalId}?type={type}`
+
+List provider episodes by provider-specific external ID.

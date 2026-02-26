@@ -5,3 +5,4 @@
 - [ ] Decide final API contract for `/metadata/search` and `/metadata/show` after aligning to `show.Show`.
 - [ ] Update Swagger docs to match current metadata response shapes.
 - [ ] Add integration tests for AniList and TVDB provider adapters.
+- [ ] Merge AniList episode schedules with TVDB episode titles so AniList episode responses use real titles instead of fallback `Episode N`.
