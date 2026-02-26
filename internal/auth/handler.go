@@ -9,6 +9,19 @@ import (
 	"github.com/keithics/devops-dashboard/api/internal/httpx"
 )
 
+// Register godoc
+//
+//	@Summary		Register user
+//	@Description	Create a new user account
+//	@Tags			auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			payload	body		registerRequest	true	"Register payload"
+//	@Success		201		{object}	registerResponse
+//	@Failure		400		{object}	httperr.APIErrorResponse
+//	@Failure		409		{object}	httperr.APIErrorResponse
+//	@Failure		500		{object}	httperr.APIErrorResponse
+//	@Router			/auth/register [post]
 func (h *Handler) Register(c *gin.Context) {
 	req, ok := httpx.AbortIfMissingContext[registerRequest](c, ctxRegisterRequestKey)
 	if !ok {
@@ -29,6 +42,19 @@ func (h *Handler) Register(c *gin.Context) {
 	})
 }
 
+// Login godoc
+//
+//	@Summary		Login user
+//	@Description	Authenticate a user and return an access token
+//	@Tags			auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			payload	body		loginRequest	true	"Login payload"
+//	@Success		200		{object}	loginResponse
+//	@Failure		400		{object}	httperr.APIErrorResponse
+//	@Failure		401		{object}	httperr.APIErrorResponse
+//	@Failure		500		{object}	httperr.APIErrorResponse
+//	@Router			/auth/login [post]
 func (h *Handler) Login(c *gin.Context) {
 	req, ok := httpx.AbortIfMissingContext[loginRequest](c, ctxLoginRequestKey)
 	if !ok {
@@ -56,6 +82,18 @@ func (h *Handler) Login(c *gin.Context) {
 	})
 }
 
+// ForgotPassword godoc
+//
+//	@Summary		Forgot password
+//	@Description	Request a password reset token for an email address
+//	@Tags			auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			payload	body		forgotPasswordRequest	true	"Forgot password payload"
+//	@Success		202		{object}	forgotPasswordResponse
+//	@Failure		400		{object}	httperr.APIErrorResponse
+//	@Failure		500		{object}	httperr.APIErrorResponse
+//	@Router			/auth/forgot-password [post]
 func (h *Handler) ForgotPassword(c *gin.Context) {
 	req, ok := httpx.AbortIfMissingContext[forgotPasswordRequest](c, ctxForgotPasswordRequestKey)
 	if !ok {

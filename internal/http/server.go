@@ -5,10 +5,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
+	_ "github.com/keithics/devops-dashboard/api/docs/swagger"
 	"github.com/keithics/devops-dashboard/api/internal/auth"
 	"github.com/keithics/devops-dashboard/api/internal/config"
 	"github.com/keithics/devops-dashboard/api/internal/db/sqlc"
 	"github.com/keithics/devops-dashboard/api/internal/httperr"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func NewServer(cfg config.Config, pool *pgxpool.Pool) *Server {
@@ -22,6 +25,7 @@ func NewServer(cfg config.Config, pool *pgxpool.Pool) *Server {
 	authHandler := auth.NewHandler(q, cfg.TokenEncryptionKey)
 
 	r.GET("/health", healthHandler)
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	auth.RegisterRoutes(r, authHandler)
 
 	return &Server{

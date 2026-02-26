@@ -14,9 +14,9 @@ import (
 	aphttp "github.com/keithics/devops-dashboard/api/internal/http"
 )
 
-// @title			DevOps Dashboard API
+// @title			Bisky API
 // @version		1.0
-// @description	API for devops-dashboard
+// @description	API for Bisky
 // @BasePath		/
 // @schemes		http https
 func main() {

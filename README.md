@@ -55,9 +55,37 @@ go install github.com/air-verse/air@latest
 make dev
 ```
 
+## Swagger / OpenAPI
+
+Swagger docs are generated automatically by `make run` and `make dev` using `swaggo/swag`.
+
+Install swag CLI once:
+
+```sh
+go install github.com/swaggo/swag/cmd/swag@latest
+```
+
+```sh
+make swagger
+```
+
+Or run API directly (auto-generates swagger first):
+
+```sh
+make run
+```
+
+Then open:
+
+- `http://localhost:3000/swagger/index.html`
+- OpenAPI JSON: `http://localhost:3000/swagger/doc.json`
+
 ## Endpoint
 
 - `GET /health`
 - `POST /auth/register`
 - `POST /auth/login`
 - `POST /auth/forgot-password`
+
+Detailed endpoint docs:
+- `docs/api.md`
