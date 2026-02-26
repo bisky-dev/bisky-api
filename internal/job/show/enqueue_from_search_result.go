@@ -6,24 +6,29 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-const insertSearchResultSQL = `
-INSERT INTO search_results (
-  provider,
-  external_id,
+const insertShowSQL = `
+INSERT INTO shows (
   title_preferred,
   title_original,
+  alt_titles,
   type,
-  score,
-  description,
-  banner_url
+  status,
+  synopsis,
+  start_date,
+  end_date,
+  poster_url,
+  banner_url,
+  season_count,
+  episode_count,
+  external_ids
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-RETURNING internal_search_result_id
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, '{}'::jsonb)
+RETURNING internal_show_id
 `
 
 const insertShowJobSQL = `
-INSERT INTO show_jobs (
-  search_result_id,
+INSERT INTO job_shows (
+  show_id,
   status
 )
 VALUES ($1::uuid, 'pending')
@@ -44,20 +49,24 @@ func (s *Service) EnqueueFromSearchResult(ctx context.Context, params EnqueueFro
 	}()
 
 	var result EnqueueFromSearchResultResult
-	if err := tx.QueryRow(ctx, insertSearchResultSQL,
-		params.Provider,
-		params.ExternalID,
+	if err := tx.QueryRow(ctx, insertShowSQL,
 		params.TitlePreferred,
 		params.TitleOriginal,
+		params.AltTitles,
 		params.Type,
-		params.Score,
-		params.Description,
+		params.Status,
+		params.Synopsis,
+		params.StartDate,
+		params.EndDate,
+		params.PosterURL,
 		params.BannerURL,
-	).Scan(&result.InternalSearchResultID); err != nil {
+		params.SeasonCount,
+		params.EpisodeCount,
+	).Scan(&result.InternalShowID); err != nil {
 		return EnqueueFromSearchResultResult{}, err
 	}
 
-	if err := tx.QueryRow(ctx, insertShowJobSQL, result.InternalSearchResultID).Scan(&result.InternalJobShowID, &result.Status, &result.RetryCount); err != nil {
+	if err := tx.QueryRow(ctx, insertShowJobSQL, result.InternalShowID).Scan(&result.InternalJobShowID, &result.Status, &result.RetryCount); err != nil {
 		return EnqueueFromSearchResultResult{}, err
 	}
 

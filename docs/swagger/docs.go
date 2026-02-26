@@ -468,7 +468,7 @@ const docTemplate = `{
         },
         "/metadata/show": {
             "post": {
-                "description": "Save a metadata search item and enqueue a show_jobs record",
+                "description": "Create a show and enqueue a job_shows record linked to the show",
                 "consumes": [
                     "application/json"
                 ],
@@ -945,20 +945,35 @@ const docTemplate = `{
         "metadata.AddShowRequest": {
             "type": "object",
             "properties": {
+                "altTitles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "bannerUrl": {
                     "type": "string"
                 },
-                "description": {
+                "endDate": {
                     "type": "string"
                 },
-                "externalId": {
+                "episodeCount": {
+                    "type": "integer"
+                },
+                "posterUrl": {
                     "type": "string"
                 },
-                "provider": {
+                "seasonCount": {
+                    "type": "integer"
+                },
+                "startDate": {
                     "type": "string"
                 },
-                "score": {
-                    "type": "number"
+                "status": {
+                    "type": "string"
+                },
+                "synopsis": {
+                    "type": "string"
                 },
                 "titleOriginal": {
                     "type": "string"
@@ -977,7 +992,7 @@ const docTemplate = `{
                 "internalJobShowId": {
                     "type": "string"
                 },
-                "internalSearchResultId": {
+                "internalShowId": {
                     "type": "string"
                 },
                 "retryCount": {
@@ -991,20 +1006,35 @@ const docTemplate = `{
         "metadata.SearchHitResponse": {
             "type": "object",
             "properties": {
+                "altTitles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "bannerUrl": {
                     "type": "string"
                 },
-                "description": {
+                "endDate": {
                     "type": "string"
                 },
-                "externalId": {
+                "episodeCount": {
+                    "type": "integer"
+                },
+                "posterUrl": {
                     "type": "string"
                 },
-                "provider": {
+                "seasonCount": {
+                    "type": "integer"
+                },
+                "startDate": {
                     "type": "string"
                 },
-                "score": {
-                    "type": "number"
+                "status": {
+                    "type": "string"
+                },
+                "synopsis": {
+                    "type": "string"
                 },
                 "titleOriginal": {
                     "type": "string"

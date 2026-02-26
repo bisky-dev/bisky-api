@@ -133,16 +133,26 @@ definitions:
     type: object
   metadata.AddShowRequest:
     properties:
+      altTitles:
+        items:
+          type: string
+        type: array
       bannerUrl:
         type: string
-      description:
+      endDate:
         type: string
-      externalId:
+      episodeCount:
+        type: integer
+      posterUrl:
         type: string
-      provider:
+      seasonCount:
+        type: integer
+      startDate:
         type: string
-      score:
-        type: number
+      status:
+        type: string
+      synopsis:
+        type: string
       titleOriginal:
         type: string
       titlePreferred:
@@ -154,7 +164,7 @@ definitions:
     properties:
       internalJobShowId:
         type: string
-      internalSearchResultId:
+      internalShowId:
         type: string
       retryCount:
         type: integer
@@ -163,16 +173,26 @@ definitions:
     type: object
   metadata.SearchHitResponse:
     properties:
+      altTitles:
+        items:
+          type: string
+        type: array
       bannerUrl:
         type: string
-      description:
+      endDate:
         type: string
-      externalId:
+      episodeCount:
+        type: integer
+      posterUrl:
         type: string
-      provider:
+      seasonCount:
+        type: integer
+      startDate:
         type: string
-      score:
-        type: number
+      status:
+        type: string
+      synopsis:
+        type: string
       titleOriginal:
         type: string
       titlePreferred:
@@ -580,7 +600,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Save a metadata search item and enqueue a show_jobs record
+      description: Create a show and enqueue a job_shows record linked to the show
       parameters:
       - description: Search show item payload
         in: body

@@ -40,7 +40,7 @@ func (h *Handler) Search(c *gin.Context) {
 // AddShow godoc
 //
 //	@Summary		Add show from metadata search item
-//	@Description	Save a metadata search item and enqueue a show_jobs record
+//	@Description	Create a show and enqueue a job_shows record linked to the show
 //	@Tags			metadata
 //	@Accept			json
 //	@Produce		json

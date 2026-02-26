@@ -7,19 +7,23 @@ type Service struct {
 }
 
 type EnqueueFromSearchResultParams struct {
-	Provider       string
-	ExternalID     string
 	TitlePreferred string
 	TitleOriginal  *string
-	Type           *string
-	Score          *float64
-	Description    *string
+	AltTitles      []string
+	Type           string
+	Status         string
+	Synopsis       *string
+	StartDate      *string
+	EndDate        *string
+	PosterURL      *string
 	BannerURL      *string
+	SeasonCount    *int64
+	EpisodeCount   *int64
 }
 
 type EnqueueFromSearchResultResult struct {
-	InternalSearchResultID string `json:"internalSearchResultId"`
-	InternalJobShowID      string `json:"internalJobShowId"`
-	Status                 string `json:"status"`
-	RetryCount             int32  `json:"retryCount"`
+	InternalShowID    string `json:"internalShowId"`
+	InternalJobShowID string `json:"internalJobShowId"`
+	Status            string `json:"status"`
+	RetryCount        int32  `json:"retryCount"`
 }

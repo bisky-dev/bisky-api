@@ -61,39 +61,62 @@ func getSearchInput(c *gin.Context) (worker.ProviderName, string, worker.SearchO
 }
 
 func normalizeAddShowRequest(req *AddShowRequest) {
-	req.Provider = strings.ToLower(strings.TrimSpace(req.Provider))
-	req.ExternalID = strings.TrimSpace(req.ExternalID)
 	req.TitlePreferred = strings.TrimSpace(req.TitlePreferred)
 	req.TitleOriginal = httpx.TrimmedOrNil(req.TitleOriginal)
-	req.Type = httpx.TrimmedOrNil(req.Type)
-	req.Description = httpx.TrimmedOrNil(req.Description)
-	req.BannerURL = httpx.TrimmedOrNil(req.BannerURL)
+	req.Type = strings.ToLower(strings.TrimSpace(req.Type))
+	req.Status = strings.ToLower(strings.TrimSpace(req.Status))
+	req.Synopsis = httpx.TrimmedOrNil(req.Synopsis)
+	req.StartDate = httpx.TrimmedOrNil(req.StartDate)
+	req.EndDate = httpx.TrimmedOrNil(req.EndDate)
+	req.PosterUrl = httpx.TrimmedOrNil(req.PosterUrl)
+	req.BannerUrl = httpx.TrimmedOrNil(req.BannerUrl)
+	req.AltTitles = normalizeAltTitles(req.AltTitles)
 }
 
 func validateAddShowRequest(req AddShowRequest) error {
-	if err := httpx.ValidateVar(req.Provider, "required,oneof=anidb anilist tvdb", "provider is invalid"); err != nil {
-		return err
-	}
-	if err := httpx.ValidateVar(req.ExternalID, "required,max=128", "externalId is invalid"); err != nil {
-		return err
-	}
 	if err := httpx.ValidateVar(req.TitlePreferred, "required,max=500", "titlePreferred is invalid"); err != nil {
 		return err
 	}
-	if req.Type != nil {
-		if err := httpx.ValidateVar(*req.Type, "oneof=anime tv movie ova special", "type is invalid"); err != nil {
-			return err
-		}
+	if err := httpx.ValidateVar(req.Type, "required,oneof=anime tv movie ova special", "type is invalid"); err != nil {
+		return err
 	}
-	if req.Score != nil {
-		if err := httpx.ValidateVar(*req.Score, "gte=0", "score is invalid"); err != nil {
-			return err
-		}
+	if err := httpx.ValidateVar(req.Status, "required,oneof=ongoing finished", "status is invalid"); err != nil {
+		return err
 	}
-	if req.BannerURL != nil {
-		if err := httpx.ValidateVar(*req.BannerURL, "url", "bannerUrl is invalid"); err != nil {
-			return err
-		}
+	if err := httpx.ValidateOptionalDate(req.StartDate, "startDate is invalid"); err != nil {
+		return err
+	}
+	if err := httpx.ValidateOptionalDate(req.EndDate, "endDate is invalid"); err != nil {
+		return err
+	}
+	if err := validateOptionalInt64(req.SeasonCount, "gte=0", "seasonCount is invalid"); err != nil {
+		return err
+	}
+	if err := validateOptionalInt64(req.EpisodeCount, "gte=0", "episodeCount is invalid"); err != nil {
+		return err
 	}
 	return nil
+}
+
+func normalizeAltTitles(values []string) []string {
+	if len(values) == 0 {
+		return []string{}
+	}
+
+	normalized := make([]string, 0, len(values))
+	for _, value := range values {
+		trimmed := strings.TrimSpace(value)
+		if trimmed == "" {
+			continue
+		}
+		normalized = append(normalized, trimmed)
+	}
+	return normalized
+}
+
+func validateOptionalInt64(value *int64, rule string, message string) error {
+	if value == nil {
+		return nil
+	}
+	return httpx.ValidateVar(*value, rule, message)
 }

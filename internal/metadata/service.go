@@ -24,23 +24,27 @@ func (s *Service) Search(ctx context.Context, provider worker.ProviderName, quer
 
 func (s *Service) AddShow(ctx context.Context, req AddShowRequest) (AddShowResponse, error) {
 	created, err := s.jobShow.EnqueueFromSearchResult(ctx, jobshow.EnqueueFromSearchResultParams{
-		Provider:       req.Provider,
-		ExternalID:     req.ExternalID,
 		TitlePreferred: req.TitlePreferred,
 		TitleOriginal:  req.TitleOriginal,
+		AltTitles:      req.AltTitles,
 		Type:           req.Type,
-		Score:          req.Score,
-		Description:    req.Description,
-		BannerURL:      req.BannerURL,
+		Status:         req.Status,
+		Synopsis:       req.Synopsis,
+		StartDate:      req.StartDate,
+		EndDate:        req.EndDate,
+		PosterURL:      req.PosterUrl,
+		BannerURL:      req.BannerUrl,
+		SeasonCount:    req.SeasonCount,
+		EpisodeCount:   req.EpisodeCount,
 	})
 	if err != nil {
 		return AddShowResponse{}, err
 	}
 
 	return AddShowResponse{
-		InternalSearchResultID: created.InternalSearchResultID,
-		InternalJobShowID:      created.InternalJobShowID,
-		Status:                 created.Status,
-		RetryCount:             created.RetryCount,
+		InternalShowID:    created.InternalShowID,
+		InternalJobShowID: created.InternalJobShowID,
+		Status:            created.Status,
+		RetryCount:        created.RetryCount,
 	}, nil
 }

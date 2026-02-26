@@ -22,30 +22,25 @@ type Service struct {
 }
 
 type SearchHitResponse struct {
-	Provider       string   `json:"provider"`
-	ExternalID     string   `json:"externalId"`
 	TitlePreferred string   `json:"titlePreferred"`
 	TitleOriginal  *string  `json:"titleOriginal,omitempty"`
-	Type           string   `json:"type,omitempty"`
-	Score          *float64 `json:"score,omitempty"`
-	Description    *string  `json:"description,omitempty"`
-	BannerURL      *string  `json:"bannerUrl,omitempty"`
+	AltTitles      []string `json:"altTitles"`
+	Type           string   `json:"type"`
+	Status         string   `json:"status"`
+	Synopsis       *string  `json:"synopsis,omitempty"`
+	StartDate      *string  `json:"startDate,omitempty"`
+	EndDate        *string  `json:"endDate,omitempty"`
+	PosterUrl      *string  `json:"posterUrl,omitempty"`
+	BannerUrl      *string  `json:"bannerUrl,omitempty"`
+	SeasonCount    *int64   `json:"seasonCount,omitempty"`
+	EpisodeCount   *int64   `json:"episodeCount,omitempty"`
 }
 
-type AddShowRequest struct {
-	Provider       string   `json:"provider"`
-	ExternalID     string   `json:"externalId"`
-	TitlePreferred string   `json:"titlePreferred"`
-	TitleOriginal  *string  `json:"titleOriginal,omitempty"`
-	Type           *string  `json:"type,omitempty"`
-	Score          *float64 `json:"score,omitempty"`
-	Description    *string  `json:"description,omitempty"`
-	BannerURL      *string  `json:"bannerUrl,omitempty"`
-}
+type AddShowRequest = SearchHitResponse
 
 type AddShowResponse struct {
-	InternalSearchResultID string `json:"internalSearchResultId"`
-	InternalJobShowID      string `json:"internalJobShowId"`
-	Status                 string `json:"status"`
-	RetryCount             int32  `json:"retryCount"`
+	InternalShowID    string `json:"internalShowId"`
+	InternalJobShowID string `json:"internalJobShowId"`
+	Status            string `json:"status"`
+	RetryCount        int32  `json:"retryCount"`
 }

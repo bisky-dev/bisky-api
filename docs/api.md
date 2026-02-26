@@ -246,4 +246,4 @@ Search provider metadata by text query.
 
 ### `POST /metadata/show`
 
-Save a selected metadata search result and enqueue a show job.
+Create a show using the same JSON shape returned by `GET /metadata/search`, then enqueue a job linked to that show.
