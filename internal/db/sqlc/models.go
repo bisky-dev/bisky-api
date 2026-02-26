@@ -60,3 +60,22 @@ type User struct {
 	PasswordHash string
 	CreatedAt    time.Time
 }
+
+type Show struct {
+	InternalShowID string
+	TitlePreferred string
+	TitleOriginal  *string
+	AltTitles      []string
+	Type           string
+	Status         string
+	Synopsis       *string
+	StartDate      *string
+	EndDate        *string
+	PosterUrl      *string
+	BannerUrl      *string
+	SeasonCount    *int64
+	EpisodeCount   *int64
+	ExternalIds    []byte
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}

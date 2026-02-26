@@ -10,6 +10,7 @@ import (
 	"github.com/keithics/devops-dashboard/api/internal/config"
 	"github.com/keithics/devops-dashboard/api/internal/db/sqlc"
 	"github.com/keithics/devops-dashboard/api/internal/httperr"
+	"github.com/keithics/devops-dashboard/api/internal/show"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -23,10 +24,12 @@ func NewServer(cfg config.Config, pool *pgxpool.Pool) *Server {
 
 	q := sqlc.New(pool)
 	authHandler := auth.NewHandler(q, cfg.TokenEncryptionKey)
+	showHandler := show.NewHandler(q)
 
 	r.GET("/health", healthHandler)
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	auth.RegisterRoutes(r, authHandler)
+	show.RegisterRoutes(r, showHandler)
 
 	return &Server{
 		cfg:    cfg,

@@ -86,6 +86,11 @@ Then open:
 - `POST /auth/register`
 - `POST /auth/login`
 - `POST /auth/forgot-password`
+- `GET /shows`
+- `GET /shows/:internalShowId`
+- `POST /shows`
+- `PUT /shows/:internalShowId`
+- `DELETE /shows/:internalShowId`
 
 Detailed endpoint docs:
 - `docs/api.md`

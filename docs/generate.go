@@ -1,3 +1,3 @@
 package docs
 
-//go:generate swag init -g ../cmd/api/main.go -o ./swagger --parseInternal
+//go:generate go run github.com/swaggo/swag/cmd/swag@v1.16.6 init -g ../cmd/api/main.go -o ./swagger --parseInternal

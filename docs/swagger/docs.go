@@ -184,6 +184,225 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/shows": {
+            "get": {
+                "description": "List all shows",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "shows"
+                ],
+                "summary": "List shows",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/show.showResponse"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new show record",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "shows"
+                ],
+                "summary": "Create show",
+                "parameters": [
+                    {
+                        "description": "Show payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/show.createShowRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/show.showResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/shows/{internalShowId}": {
+            "get": {
+                "description": "Get a show by internal show id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "shows"
+                ],
+                "summary": "Get show",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Internal show UUID",
+                        "name": "internalShowId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/show.showResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update a show by internal show id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "shows"
+                ],
+                "summary": "Update show",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Internal show UUID",
+                        "name": "internalShowId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Show payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/show.updateShowRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/show.showResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a show by internal show id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "shows"
+                ],
+                "summary": "Delete show",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Internal show UUID",
+                        "name": "internalShowId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -289,6 +508,167 @@ const docTemplate = `{
             "properties": {
                 "error": {
                     "$ref": "#/definitions/httperr.APIError"
+                }
+            }
+        },
+        "show.createShowRequest": {
+            "type": "object",
+            "properties": {
+                "altTitles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "bannerUrl": {
+                    "type": "string"
+                },
+                "endDate": {
+                    "type": "string"
+                },
+                "episodeCount": {
+                    "type": "integer"
+                },
+                "externalIds": {
+                    "$ref": "#/definitions/show.externalIDs"
+                },
+                "posterUrl": {
+                    "type": "string"
+                },
+                "seasonCount": {
+                    "type": "integer"
+                },
+                "startDate": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "synopsis": {
+                    "type": "string"
+                },
+                "titleOriginal": {
+                    "type": "string"
+                },
+                "titlePreferred": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "show.externalIDs": {
+            "type": "object",
+            "properties": {
+                "anilist": {
+                    "type": "integer"
+                },
+                "tvdb": {
+                    "type": "integer"
+                }
+            }
+        },
+        "show.showResponse": {
+            "type": "object",
+            "properties": {
+                "altTitles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "bannerUrl": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "endDate": {
+                    "type": "string"
+                },
+                "episodeCount": {
+                    "type": "integer"
+                },
+                "externalIds": {
+                    "$ref": "#/definitions/show.externalIDs"
+                },
+                "internalShowId": {
+                    "type": "string"
+                },
+                "posterUrl": {
+                    "type": "string"
+                },
+                "seasonCount": {
+                    "type": "integer"
+                },
+                "startDate": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "synopsis": {
+                    "type": "string"
+                },
+                "titleOriginal": {
+                    "type": "string"
+                },
+                "titlePreferred": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "show.updateShowRequest": {
+            "type": "object",
+            "properties": {
+                "altTitles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "bannerUrl": {
+                    "type": "string"
+                },
+                "endDate": {
+                    "type": "string"
+                },
+                "episodeCount": {
+                    "type": "integer"
+                },
+                "externalIds": {
+                    "$ref": "#/definitions/show.externalIDs"
+                },
+                "posterUrl": {
+                    "type": "string"
+                },
+                "seasonCount": {
+                    "type": "integer"
+                },
+                "startDate": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "synopsis": {
+                    "type": "string"
+                },
+                "titleOriginal": {
+                    "type": "string"
+                },
+                "titlePreferred": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
                 }
             }
         }

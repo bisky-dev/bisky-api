@@ -123,3 +123,60 @@ Success response (`202`):
 Possible errors:
 - `400` invalid request body
 - `500` internal error
+
+---
+
+## Shows
+
+### `POST /shows`
+
+Create a show.
+
+Request body:
+
+```json
+{
+  "titlePreferred": "Frieren: Beyond Journey's End",
+  "titleOriginal": "Sousou no Frieren",
+  "altTitles": ["Frieren"],
+  "type": "anime",
+  "status": "ongoing",
+  "synopsis": "An elf mage reflects on life and time.",
+  "startDate": "2023-09-29",
+  "endDate": null,
+  "posterUrl": "https://example.com/poster.jpg",
+  "bannerUrl": "https://example.com/banner.jpg",
+  "seasonCount": 1,
+  "episodeCount": 28,
+  "externalIds": {
+    "anilist": 154587,
+    "tvdb": 420000
+  }
+}
+```
+
+Success response (`201`): show object.
+
+### `GET /shows`
+
+List shows.
+
+Success response (`200`): array of show objects.
+
+### `GET /shows/{internalShowId}`
+
+Get one show by UUID.
+
+Success response (`200`): show object.
+
+### `PUT /shows/{internalShowId}`
+
+Update one show by UUID (same body shape as create).
+
+Success response (`200`): updated show object.
+
+### `DELETE /shows/{internalShowId}`
+
+Delete one show by UUID.
+
+Success response (`204`): no body.

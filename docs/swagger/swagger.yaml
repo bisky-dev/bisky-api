@@ -67,6 +67,112 @@ definitions:
       error:
         $ref: '#/definitions/httperr.APIError'
     type: object
+  show.createShowRequest:
+    properties:
+      altTitles:
+        items:
+          type: string
+        type: array
+      bannerUrl:
+        type: string
+      endDate:
+        type: string
+      episodeCount:
+        type: integer
+      externalIds:
+        $ref: '#/definitions/show.externalIDs'
+      posterUrl:
+        type: string
+      seasonCount:
+        type: integer
+      startDate:
+        type: string
+      status:
+        type: string
+      synopsis:
+        type: string
+      titleOriginal:
+        type: string
+      titlePreferred:
+        type: string
+      type:
+        type: string
+    type: object
+  show.externalIDs:
+    properties:
+      anilist:
+        type: integer
+      tvdb:
+        type: integer
+    type: object
+  show.showResponse:
+    properties:
+      altTitles:
+        items:
+          type: string
+        type: array
+      bannerUrl:
+        type: string
+      createdAt:
+        type: string
+      endDate:
+        type: string
+      episodeCount:
+        type: integer
+      externalIds:
+        $ref: '#/definitions/show.externalIDs'
+      internalShowId:
+        type: string
+      posterUrl:
+        type: string
+      seasonCount:
+        type: integer
+      startDate:
+        type: string
+      status:
+        type: string
+      synopsis:
+        type: string
+      titleOriginal:
+        type: string
+      titlePreferred:
+        type: string
+      type:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  show.updateShowRequest:
+    properties:
+      altTitles:
+        items:
+          type: string
+        type: array
+      bannerUrl:
+        type: string
+      endDate:
+        type: string
+      episodeCount:
+        type: integer
+      externalIds:
+        $ref: '#/definitions/show.externalIDs'
+      posterUrl:
+        type: string
+      seasonCount:
+        type: integer
+      startDate:
+        type: string
+      status:
+        type: string
+      synopsis:
+        type: string
+      titleOriginal:
+        type: string
+      titlePreferred:
+        type: string
+      type:
+        type: string
+    type: object
 info:
   contact: {}
   description: API for Bisky
@@ -184,6 +290,151 @@ paths:
       summary: Health check
       tags:
       - system
+  /shows:
+    get:
+      description: List all shows
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/show.showResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+      summary: List shows
+      tags:
+      - shows
+    post:
+      consumes:
+      - application/json
+      description: Create a new show record
+      parameters:
+      - description: Show payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/show.createShowRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/show.showResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+      summary: Create show
+      tags:
+      - shows
+  /shows/{internalShowId}:
+    delete:
+      description: Delete a show by internal show id
+      parameters:
+      - description: Internal show UUID
+        in: path
+        name: internalShowId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+      summary: Delete show
+      tags:
+      - shows
+    get:
+      description: Get a show by internal show id
+      parameters:
+      - description: Internal show UUID
+        in: path
+        name: internalShowId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/show.showResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+      summary: Get show
+      tags:
+      - shows
+    put:
+      consumes:
+      - application/json
+      description: Update a show by internal show id
+      parameters:
+      - description: Internal show UUID
+        in: path
+        name: internalShowId
+        required: true
+        type: string
+      - description: Show payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/show.updateShowRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/show.showResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+      summary: Update show
+      tags:
+      - shows
 schemes:
 - http
 - https
