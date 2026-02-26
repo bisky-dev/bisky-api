@@ -10,7 +10,8 @@
     { "key": "password", "value": "SeedPass123!" },
     { "key": "accessToken", "value": "" },
     { "key": "showId", "value": "" },
-    { "key": "episodeId", "value": "" }
+    { "key": "episodeId", "value": "" },
+    { "key": "tvdbSeriesId", "value": "121361" }
   ],
   "item": [
     {
@@ -249,15 +250,15 @@
       "name": "Metadata",
       "item": [
         {
-          "name": "GET /metadata/search",
+          "name": "GET /metadata/search (tvdb)",
           "request": {
             "method": "GET",
             "header": [],
-            "url": "{{baseUrl}}/metadata/search?query=frieren&type=anidb&page=1&limit=10"
+            "url": "{{baseUrl}}/metadata/search?query=breaking%20bad&type=tvdb&page=1&limit=10"
           }
         },
         {
-          "name": "POST /metadata/show",
+          "name": "POST /metadata/show (tvdb)",
           "request": {
             "method": "POST",
             "header": [
@@ -265,25 +266,25 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"provider\": \"anidb\",\n  \"externalId\": \"16498\",\n  \"titlePreferred\": \"Sousou no Frieren\",\n  \"titleOriginal\": \"葬送のフリーレン\",\n  \"type\": \"anime\",\n  \"score\": 95.3,\n  \"description\": \"After the hero party defeats the Demon King...\",\n  \"bannerUrl\": \"https://s4.anilist.co/file/anilistcdn/media/anime/banner/16498.jpg\"\n}"
+              "raw": "{\n  \"provider\": \"tvdb\",\n  \"externalId\": \"{{tvdbSeriesId}}\",\n  \"titlePreferred\": \"Breaking Bad\",\n  \"type\": \"tv\",\n  \"score\": 9.5,\n  \"description\": \"A high school chemistry teacher turns to making meth.\",\n  \"bannerUrl\": \"https://artworks.thetvdb.com/example.jpg\"\n}"
             },
             "url": "{{baseUrl}}/metadata/show"
           }
         },
         {
-          "name": "GET /metadata/show/:externalId",
+          "name": "GET /metadata/show/:externalId (tvdb)",
           "request": {
             "method": "GET",
             "header": [],
-            "url": "{{baseUrl}}/metadata/show/16498?type=anidb"
+            "url": "{{baseUrl}}/metadata/show/{{tvdbSeriesId}}?type=tvdb"
           }
         },
         {
-          "name": "GET /metadata/episodes/:externalId",
+          "name": "GET /metadata/episodes/:externalId (tvdb)",
           "request": {
             "method": "GET",
             "header": [],
-            "url": "{{baseUrl}}/metadata/episodes/16498?type=anidb&page=1&limit=25"
+            "url": "{{baseUrl}}/metadata/episodes/{{tvdbSeriesId}}?type=tvdb&page=1&limit=25"
           }
         }
       ]

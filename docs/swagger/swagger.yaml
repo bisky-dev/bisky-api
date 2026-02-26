@@ -131,6 +131,36 @@ definitions:
       error:
         $ref: '#/definitions/httperr.APIError'
     type: object
+  metadata.AddShowRequest:
+    properties:
+      bannerUrl:
+        type: string
+      description:
+        type: string
+      externalId:
+        type: string
+      provider:
+        type: string
+      score:
+        type: number
+      titleOriginal:
+        type: string
+      titlePreferred:
+        type: string
+      type:
+        type: string
+    type: object
+  metadata.AddShowResponse:
+    properties:
+      internalJobShowId:
+        type: string
+      internalSearchResultId:
+        type: string
+      retryCount:
+        type: integer
+      status:
+        type: string
+    type: object
   metadata.EpisodeResponse:
     properties:
       airDate:
@@ -636,6 +666,40 @@ paths:
           schema:
             $ref: '#/definitions/httperr.APIErrorResponse'
       summary: Metadata search
+      tags:
+      - metadata
+  /metadata/show:
+    post:
+      consumes:
+      - application/json
+      description: Save a metadata search item and enqueue a show_jobs record
+      parameters:
+      - description: Search show item payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/metadata.AddShowRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/metadata.AddShowResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+      summary: Add show from metadata search item
       tags:
       - metadata
   /metadata/show/{externalId}:

@@ -28,40 +28,7 @@ type externalIDs struct {
 	Tvdb    *int64 `json:"tvdb,omitempty"`
 }
 
-type createShowRequest struct {
-	TitlePreferred string      `json:"titlePreferred"`
-	TitleOriginal  *string     `json:"titleOriginal"`
-	AltTitles      []string    `json:"altTitles"`
-	Type           string      `json:"type"`
-	Status         string      `json:"status"`
-	Synopsis       *string     `json:"synopsis"`
-	StartDate      *string     `json:"startDate"`
-	EndDate        *string     `json:"endDate"`
-	PosterUrl      *string     `json:"posterUrl"`
-	BannerUrl      *string     `json:"bannerUrl"`
-	SeasonCount    *int64      `json:"seasonCount"`
-	EpisodeCount   *int64      `json:"episodeCount"`
-	ExternalIDs    externalIDs `json:"externalIds"`
-}
-
-type updateShowRequest struct {
-	TitlePreferred string      `json:"titlePreferred"`
-	TitleOriginal  *string     `json:"titleOriginal"`
-	AltTitles      []string    `json:"altTitles"`
-	Type           string      `json:"type"`
-	Status         string      `json:"status"`
-	Synopsis       *string     `json:"synopsis"`
-	StartDate      *string     `json:"startDate"`
-	EndDate        *string     `json:"endDate"`
-	PosterUrl      *string     `json:"posterUrl"`
-	BannerUrl      *string     `json:"bannerUrl"`
-	SeasonCount    *int64      `json:"seasonCount"`
-	EpisodeCount   *int64      `json:"episodeCount"`
-	ExternalIDs    externalIDs `json:"externalIds"`
-}
-
-type showResponse struct {
-	InternalShowID string      `json:"internalShowId"`
+type Show struct {
 	TitlePreferred string      `json:"titlePreferred"`
 	TitleOriginal  *string     `json:"titleOriginal,omitempty"`
 	AltTitles      []string    `json:"altTitles"`
@@ -75,6 +42,15 @@ type showResponse struct {
 	SeasonCount    *int64      `json:"seasonCount,omitempty"`
 	EpisodeCount   *int64      `json:"episodeCount,omitempty"`
 	ExternalIDs    externalIDs `json:"externalIds"`
-	CreatedAt      time.Time   `json:"createdAt"`
-	UpdatedAt      time.Time   `json:"updatedAt"`
+}
+
+type createShowRequest = Show
+
+type updateShowRequest = Show
+
+type showResponse struct {
+	InternalShowID string `json:"internalShowId"`
+	Show
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }

@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	showmodel "github.com/keithics/devops-dashboard/api/internal/show"
 	"github.com/keithics/devops-dashboard/api/internal/worker/metadata"
 )
 
@@ -100,22 +101,20 @@ func (p *Provider) Search(ctx context.Context, query string, opts metadata.Searc
 
 	hits := make([]metadata.SearchHit, 0, len(response.Data.Page.Media))
 	for _, media := range response.Data.Page.Media {
-		externalID := strconv.FormatInt(media.ID, 10)
 		titlePreferred, titleOriginal := pickTitles(media.Title)
 		typeValue := mapAniListType(media.Type)
-		score := normalizeAverageScore(media.AverageScore)
-		description := normalizeStringPtr(media.Description)
 		bannerURL := normalizeStringPtr(media.BannerImage)
+		synopsis := normalizeStringPtr(media.Description)
+		_ = normalizeAverageScore(media.AverageScore)
 
 		hits = append(hits, metadata.SearchHit{
-			Provider:       metadata.ProviderAniList,
-			ExternalID:     externalID,
-			TitlePreferred: titlePreferred,
-			TitleOriginal:  titleOriginal,
-			Type:           typeValue,
-			Score:          score,
-			Description:    description,
-			BannerURL:      bannerURL,
+			Show: showmodel.Show{
+				TitlePreferred: titlePreferred,
+				TitleOriginal:  titleOriginal,
+				Type:           typeValue,
+				Synopsis:       synopsis,
+				BannerUrl:      bannerURL,
+			},
 		})
 	}
 
@@ -152,15 +151,16 @@ func (p *Provider) GetShow(ctx context.Context, externalID string) (metadata.Sho
 	bannerURL := normalizeStringPtr(response.Data.Media.BannerImage)
 
 	return metadata.Show{
-		Provider:       metadata.ProviderAniList,
-		ExternalID:     strconv.FormatInt(response.Data.Media.ID, 10),
-		TitlePreferred: titlePreferred,
-		TitleOriginal:  titleOriginal,
-		Synopsis:       synopsis,
-		StartDate:      startDate,
-		EndDate:        endDate,
-		PosterURL:      posterURL,
-		BannerURL:      bannerURL,
+		Show: showmodel.Show{
+			TitlePreferred: titlePreferred,
+			TitleOriginal:  titleOriginal,
+			Synopsis:       synopsis,
+			StartDate:      startDate,
+			EndDate:        endDate,
+			PosterUrl:      posterURL,
+			BannerUrl:      bannerURL,
+			Type:           "anime",
+		},
 	}, nil
 }
 

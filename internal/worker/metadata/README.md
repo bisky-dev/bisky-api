@@ -14,5 +14,3 @@ Provider interface:
 Provider adapters:
 - `providers/anilist`
 - `providers/tvdb`
-
-Current adapter methods are scaffold stubs and return not implemented errors.

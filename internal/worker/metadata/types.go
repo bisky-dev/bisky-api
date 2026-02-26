@@ -1,6 +1,10 @@
 package metadata
 
-import "context"
+import (
+	"context"
+
+	showmodel "github.com/keithics/devops-dashboard/api/internal/show"
+)
 
 type ProviderName string
 
@@ -22,26 +26,11 @@ type ListEpisodesOpts struct {
 }
 
 type SearchHit struct {
-	Provider       ProviderName `json:"provider"`
-	ExternalID     string       `json:"externalId"`
-	TitlePreferred string       `json:"titlePreferred"`
-	TitleOriginal  *string      `json:"titleOriginal,omitempty"`
-	Type           string       `json:"type,omitempty"`
-	Score          *float64     `json:"score,omitempty"`
-	Description    *string      `json:"description,omitempty"`
-	BannerURL      *string      `json:"bannerUrl,omitempty"`
+	showmodel.Show
 }
 
 type Show struct {
-	Provider       ProviderName `json:"provider"`
-	ExternalID     string       `json:"externalId"`
-	TitlePreferred string       `json:"titlePreferred"`
-	TitleOriginal  *string      `json:"titleOriginal,omitempty"`
-	Synopsis       *string      `json:"synopsis,omitempty"`
-	StartDate      *string      `json:"startDate,omitempty"`
-	EndDate        *string      `json:"endDate,omitempty"`
-	PosterURL      *string      `json:"posterUrl,omitempty"`
-	BannerURL      *string      `json:"bannerUrl,omitempty"`
+	showmodel.Show
 }
 
 type Episode struct {
