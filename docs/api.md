@@ -244,10 +244,6 @@ Provider type query param:
 
 Search provider metadata by text query.
 
-### `GET /metadata/show/{externalId}?type={type}`
+### `POST /metadata/show`
 
-Get provider show details by provider-specific external ID.
-
-### `GET /metadata/episodes/{externalId}?type={type}`
-
-List provider episodes by provider-specific external ID.
+Save a selected metadata search result and enqueue a show job.

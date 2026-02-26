@@ -35,13 +35,6 @@ func validateQuery(query string) error {
 	return nil
 }
 
-func validateExternalID(externalID string) error {
-	if externalID == "" {
-		return errors.New("externalId is required")
-	}
-	return nil
-}
-
 func abortProviderErr(c *gin.Context, internalMessage string, err error) {
 	message := strings.ToLower(err.Error())
 	if strings.Contains(message, "not implemented") || strings.Contains(message, "not supported") {
@@ -65,30 +58,6 @@ func getSearchInput(c *gin.Context) (worker.ProviderName, string, worker.SearchO
 		return "", "", worker.SearchOpts{}, false
 	}
 	return provider, query, opts, true
-}
-
-func getProviderAndExternalID(c *gin.Context) (worker.ProviderName, string, bool) {
-	provider, ok := httpx.AbortIfMissingContext[worker.ProviderName](c, ctxProviderTypeKey)
-	if !ok {
-		return "", "", false
-	}
-	externalID, ok := httpx.AbortIfMissingContext[string](c, ctxExternalIDKey)
-	if !ok {
-		return "", "", false
-	}
-	return provider, externalID, true
-}
-
-func getEpisodesInput(c *gin.Context) (worker.ProviderName, string, worker.ListEpisodesOpts, bool) {
-	provider, externalID, ok := getProviderAndExternalID(c)
-	if !ok {
-		return "", "", worker.ListEpisodesOpts{}, false
-	}
-	opts, ok := httpx.AbortIfMissingContext[worker.ListEpisodesOpts](c, ctxEpisodesOptsKey)
-	if !ok {
-		return "", "", worker.ListEpisodesOpts{}, false
-	}
-	return provider, externalID, opts, true
 }
 
 func normalizeAddShowRequest(req *AddShowRequest) {

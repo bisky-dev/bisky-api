@@ -161,23 +161,6 @@ definitions:
       status:
         type: string
     type: object
-  metadata.EpisodeResponse:
-    properties:
-      airDate:
-        type: string
-      episodeNumber:
-        type: integer
-      externalId:
-        type: string
-      provider:
-        type: string
-      runtimeMinutes:
-        type: integer
-      seasonNumber:
-        type: integer
-      title:
-        type: string
-    type: object
   metadata.SearchHitResponse:
     properties:
       bannerUrl:
@@ -197,27 +180,6 @@ definitions:
       type:
         type: string
     type: object
-  metadata.ShowResponse:
-    properties:
-      bannerUrl:
-        type: string
-      endDate:
-        type: string
-      externalId:
-        type: string
-      posterUrl:
-        type: string
-      provider:
-        type: string
-      startDate:
-        type: string
-      synopsis:
-        type: string
-      titleOriginal:
-        type: string
-      titlePreferred:
-        type: string
-    type: object
   show.createShowRequest:
     properties:
       altTitles:
@@ -230,8 +192,6 @@ definitions:
         type: string
       episodeCount:
         type: integer
-      externalIds:
-        $ref: '#/definitions/show.externalIDs'
       posterUrl:
         type: string
       seasonCount:
@@ -249,13 +209,6 @@ definitions:
       type:
         type: string
     type: object
-  show.externalIDs:
-    properties:
-      anilist:
-        type: integer
-      tvdb:
-        type: integer
-    type: object
   show.showResponse:
     properties:
       altTitles:
@@ -270,8 +223,6 @@ definitions:
         type: string
       episodeCount:
         type: integer
-      externalIds:
-        $ref: '#/definitions/show.externalIDs'
       internalShowId:
         type: string
       posterUrl:
@@ -305,8 +256,6 @@ definitions:
         type: string
       episodeCount:
         type: integer
-      externalIds:
-        $ref: '#/definitions/show.externalIDs'
       posterUrl:
         type: string
       seasonCount:
@@ -586,47 +535,6 @@ paths:
       summary: Health check
       tags:
       - system
-  /metadata/episodes/{externalId}:
-    get:
-      description: List episodes metadata by provider external id
-      parameters:
-      - description: Provider external id
-        in: path
-        name: externalId
-        required: true
-        type: string
-      - description: 'Provider type: anidb|tvdb (default anidb)'
-        in: query
-        name: type
-        type: string
-      - description: Page
-        in: query
-        name: page
-        type: integer
-      - description: Limit
-        in: query
-        name: limit
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/metadata.EpisodeResponse'
-            type: array
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httperr.APIErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httperr.APIErrorResponse'
-      summary: Metadata list episodes
-      tags:
-      - metadata
   /metadata/search:
     get:
       description: Search metadata by provider type (anidb default, tvdb optional)
@@ -700,37 +608,6 @@ paths:
           schema:
             $ref: '#/definitions/httperr.APIErrorResponse'
       summary: Add show from metadata search item
-      tags:
-      - metadata
-  /metadata/show/{externalId}:
-    get:
-      description: Get show metadata by provider external id
-      parameters:
-      - description: Provider external id
-        in: path
-        name: externalId
-        required: true
-        type: string
-      - description: 'Provider type: anidb|tvdb (default anidb)'
-        in: query
-        name: type
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/metadata.ShowResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httperr.APIErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httperr.APIErrorResponse'
-      summary: Metadata get show
       tags:
       - metadata
   /shows:

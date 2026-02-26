@@ -404,68 +404,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/metadata/episodes/{externalId}": {
-            "get": {
-                "description": "List episodes metadata by provider external id",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "metadata"
-                ],
-                "summary": "Metadata list episodes",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Provider external id",
-                        "name": "externalId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Provider type: anidb|tvdb (default anidb)",
-                        "name": "type",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Limit",
-                        "name": "limit",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/metadata.EpisodeResponse"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/httperr.APIErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/httperr.APIErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/metadata/search": {
             "get": {
                 "description": "Search metadata by provider type (anidb default, tvdb optional)",
@@ -567,53 +505,6 @@ const docTemplate = `{
                     },
                     "409": {
                         "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/httperr.APIErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/httperr.APIErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/metadata/show/{externalId}": {
-            "get": {
-                "description": "Get show metadata by provider external id",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "metadata"
-                ],
-                "summary": "Metadata get show",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Provider external id",
-                        "name": "externalId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Provider type: anidb|tvdb (default anidb)",
-                        "name": "type",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/metadata.ShowResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/httperr.APIErrorResponse"
                         }
@@ -1097,32 +988,6 @@ const docTemplate = `{
                 }
             }
         },
-        "metadata.EpisodeResponse": {
-            "type": "object",
-            "properties": {
-                "airDate": {
-                    "type": "string"
-                },
-                "episodeNumber": {
-                    "type": "integer"
-                },
-                "externalId": {
-                    "type": "string"
-                },
-                "provider": {
-                    "type": "string"
-                },
-                "runtimeMinutes": {
-                    "type": "integer"
-                },
-                "seasonNumber": {
-                    "type": "integer"
-                },
-                "title": {
-                    "type": "string"
-                }
-            }
-        },
         "metadata.SearchHitResponse": {
             "type": "object",
             "properties": {
@@ -1152,38 +1017,6 @@ const docTemplate = `{
                 }
             }
         },
-        "metadata.ShowResponse": {
-            "type": "object",
-            "properties": {
-                "bannerUrl": {
-                    "type": "string"
-                },
-                "endDate": {
-                    "type": "string"
-                },
-                "externalId": {
-                    "type": "string"
-                },
-                "posterUrl": {
-                    "type": "string"
-                },
-                "provider": {
-                    "type": "string"
-                },
-                "startDate": {
-                    "type": "string"
-                },
-                "synopsis": {
-                    "type": "string"
-                },
-                "titleOriginal": {
-                    "type": "string"
-                },
-                "titlePreferred": {
-                    "type": "string"
-                }
-            }
-        },
         "show.createShowRequest": {
             "type": "object",
             "properties": {
@@ -1201,9 +1034,6 @@ const docTemplate = `{
                 },
                 "episodeCount": {
                     "type": "integer"
-                },
-                "externalIds": {
-                    "$ref": "#/definitions/show.externalIDs"
                 },
                 "posterUrl": {
                     "type": "string"
@@ -1231,17 +1061,6 @@ const docTemplate = `{
                 }
             }
         },
-        "show.externalIDs": {
-            "type": "object",
-            "properties": {
-                "anilist": {
-                    "type": "integer"
-                },
-                "tvdb": {
-                    "type": "integer"
-                }
-            }
-        },
         "show.showResponse": {
             "type": "object",
             "properties": {
@@ -1262,9 +1081,6 @@ const docTemplate = `{
                 },
                 "episodeCount": {
                     "type": "integer"
-                },
-                "externalIds": {
-                    "$ref": "#/definitions/show.externalIDs"
                 },
                 "internalShowId": {
                     "type": "string"
@@ -1315,9 +1131,6 @@ const docTemplate = `{
                 },
                 "episodeCount": {
                     "type": "integer"
-                },
-                "externalIds": {
-                    "$ref": "#/definitions/show.externalIDs"
                 },
                 "posterUrl": {
                     "type": "string"
