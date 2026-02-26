@@ -22,9 +22,7 @@ func NewServer(cfg config.Config, pool *pgxpool.Pool) *Server {
 	authHandler := auth.NewHandler(q, cfg.TokenEncryptionKey)
 
 	r.GET("/health", healthHandler)
-	r.POST("/auth/register", authHandler.BindRegister(), authHandler.Register)
-	r.POST("/auth/login", authHandler.BindLogin(), authHandler.Login)
-	r.POST("/auth/forgot-password", authHandler.BindForgotPassword(), authHandler.ForgotPassword)
+	auth.RegisterRoutes(r, authHandler)
 
 	return &Server{
 		cfg:    cfg,
