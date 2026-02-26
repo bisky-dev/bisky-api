@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	jobshow "github.com/keithics/devops-dashboard/api/internal/job/show"
-	worker "github.com/keithics/devops-dashboard/api/internal/worker/metadata"
+	worker "github.com/keithics/devops-dashboard/api/internal/metadata/provider"
 )
 
 func NewService(workerService *worker.Service, jobShowService *jobshow.Service) *Service {

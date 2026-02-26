@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/keithics/devops-dashboard/api/internal/httpx"
-	worker "github.com/keithics/devops-dashboard/api/internal/worker/metadata"
+	worker "github.com/keithics/devops-dashboard/api/internal/metadata/provider"
 )
 
 func (h *Handler) BindSearch() gin.HandlerFunc {

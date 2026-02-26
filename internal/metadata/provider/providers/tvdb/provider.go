@@ -16,8 +16,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/keithics/devops-dashboard/api/internal/metadata/provider"
 	showmodel "github.com/keithics/devops-dashboard/api/internal/show"
-	"github.com/keithics/devops-dashboard/api/internal/worker/metadata"
 )
 
 const (

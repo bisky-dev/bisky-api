@@ -13,10 +13,10 @@ import (
 	"github.com/keithics/devops-dashboard/api/internal/httperr"
 	jobshow "github.com/keithics/devops-dashboard/api/internal/job/show"
 	"github.com/keithics/devops-dashboard/api/internal/metadata"
+	workermeta "github.com/keithics/devops-dashboard/api/internal/metadata/provider"
+	"github.com/keithics/devops-dashboard/api/internal/metadata/provider/providers/anilist"
+	"github.com/keithics/devops-dashboard/api/internal/metadata/provider/providers/tvdb"
 	"github.com/keithics/devops-dashboard/api/internal/show"
-	workermeta "github.com/keithics/devops-dashboard/api/internal/worker/metadata"
-	"github.com/keithics/devops-dashboard/api/internal/worker/metadata/providers/anilist"
-	"github.com/keithics/devops-dashboard/api/internal/worker/metadata/providers/tvdb"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
