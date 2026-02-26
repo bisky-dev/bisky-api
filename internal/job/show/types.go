@@ -20,6 +20,7 @@ type EnqueueFromSearchResultParams struct {
 	BannerURL      *string
 	SeasonCount    *int64
 	EpisodeCount   *int64
+	Episodes       []EpisodeInput
 }
 
 type EnqueueFromSearchResultResult struct {
@@ -27,4 +28,13 @@ type EnqueueFromSearchResultResult struct {
 	InternalJobShowID string `json:"internalJobShowId"`
 	Status            string `json:"status"`
 	RetryCount        int32  `json:"retryCount"`
+}
+
+type EpisodeInput struct {
+	ExternalID     string
+	SeasonNumber   int64
+	EpisodeNumber  int64
+	Title          string
+	AirDate        *string
+	RuntimeMinutes *int64
 }

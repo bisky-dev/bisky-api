@@ -109,6 +109,9 @@ func validateAddShowRequest(req AddShowRequest) error {
 	if err := httpx.ValidateVar(req.ExternalID, "required,max=128", "externalId is invalid"); err != nil {
 		return err
 	}
+	if err := validatePrefixedExternalID(req.ExternalID); err != nil {
+		return err
+	}
 	if err := httpx.ValidateVar(req.TitlePreferred, "required,max=500", "titlePreferred is invalid"); err != nil {
 		return err
 	}
@@ -131,6 +134,22 @@ func validateAddShowRequest(req AddShowRequest) error {
 		return err
 	}
 	return nil
+}
+
+var errExternalIDMustBePrefixed = errors.New("externalId must start with anidb:, anilist:, or tvdb:")
+
+func validatePrefixedExternalID(externalID string) error {
+	value := strings.ToLower(strings.TrimSpace(externalID))
+	switch {
+	case strings.HasPrefix(value, "anidb:"):
+		return nil
+	case strings.HasPrefix(value, "anilist:"):
+		return nil
+	case strings.HasPrefix(value, "tvdb:"):
+		return nil
+	default:
+		return errExternalIDMustBePrefixed
+	}
 }
 
 func normalizeAltTitles(values []string) []string {

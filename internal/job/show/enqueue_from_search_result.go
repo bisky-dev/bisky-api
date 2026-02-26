@@ -35,6 +35,20 @@ VALUES ($1::uuid, 'pending')
 RETURNING internal_job_show_id, status, retry_count
 `
 
+const insertEpisodeSQL = `
+INSERT INTO episodes (
+  show_id,
+  season_number,
+  episode_number,
+  title,
+  air_date,
+  runtime_minutes,
+  external_ids
+)
+VALUES ($1::uuid, $2, $3, $4, $5, $6, jsonb_build_object('externalId', $7::text))
+ON CONFLICT (show_id, season_number, episode_number) DO NOTHING
+`
+
 const findPendingJobByExternalIDSQL = `
 SELECT
   s.internal_show_id,
@@ -95,6 +109,20 @@ func (s *Service) EnqueueFromSearchResult(ctx context.Context, params EnqueueFro
 		params.ExternalID,
 	).Scan(&result.InternalShowID); err != nil {
 		return EnqueueFromSearchResultResult{}, err
+	}
+
+	for _, episode := range params.Episodes {
+		if _, err := tx.Exec(ctx, insertEpisodeSQL,
+			result.InternalShowID,
+			episode.SeasonNumber,
+			episode.EpisodeNumber,
+			episode.Title,
+			episode.AirDate,
+			episode.RuntimeMinutes,
+			episode.ExternalID,
+		); err != nil {
+			return EnqueueFromSearchResultResult{}, err
+		}
 	}
 
 	if err := tx.QueryRow(ctx, insertShowJobSQL, result.InternalShowID).Scan(&result.InternalJobShowID, &result.Status, &result.RetryCount); err != nil {
