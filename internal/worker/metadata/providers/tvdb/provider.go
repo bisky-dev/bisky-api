@@ -60,21 +60,23 @@ func (p *Provider) Search(ctx context.Context, query string, opts metadata.Searc
 
 	hits := make([]metadata.SearchHit, 0, len(items))
 	for _, item := range items {
-		titlePreferred := firstString(item, "name", "name_translated", "seriesName", "title", "slug")
+		titlePreferred := firstString(item, "name_translated", "title", "seriesName", "name", "slug")
 		if titlePreferred == "" {
 			titlePreferred = "Untitled"
 		}
 
 		titleOriginal := stringPtr(firstString(item, "name"))
 		bannerURL := stringPtr(firstString(item, "image_url", "thumbnail", "image", "banner"))
-		synopsis := stringPtr(firstString(item, "overview", "overview_translated", "summary", "plot"))
+		synopsis := stringPtr(firstString(item, "overview_translated", "overview", "overviews", "summary", "plot"))
 		_ = floatPtr(firstFloat64(item, "score"))
 
 		hits = append(hits, metadata.SearchHit{
 			Show: showmodel.Show{
 				TitlePreferred: titlePreferred,
 				TitleOriginal:  titleOriginal,
+				AltTitles:      extractTVDBAltTitles(item, titlePreferred, titleOriginal),
 				Type:           mapShowType(firstString(item, "primary_type", "type")),
+				Status:         showmodel.NormalizeStatusOrDefault(firstString(item, "status", "statusName"), showmodel.StatusOngoing),
 				Synopsis:       synopsis,
 				BannerUrl:      bannerURL,
 			},
@@ -131,7 +133,7 @@ func (p *Provider) GetShow(ctx context.Context, externalID string) (metadata.Sho
 		return metadata.Show{}, err
 	}
 
-	titlePreferred := firstString(item, "name", "slug")
+	titlePreferred := firstString(item, "name_translated", "name", "slug")
 	if titlePreferred == "" {
 		titlePreferred = "Untitled"
 	}
@@ -152,8 +154,10 @@ func (p *Provider) GetShow(ctx context.Context, externalID string) (metadata.Sho
 		Show: showmodel.Show{
 			TitlePreferred: titlePreferred,
 			TitleOriginal:  stringPtr(firstString(item, "name")),
+			AltTitles:      extractTVDBAltTitles(item, titlePreferred, stringPtr(firstString(item, "name"))),
 			Type:           mapShowType(firstString(item, "type", "primary_type")),
-			Synopsis:       stringPtr(firstString(item, "overview")),
+			Status:         showmodel.NormalizeStatusOrDefault(firstString(item, "status", "statusName"), showmodel.StatusOngoing),
+			Synopsis:       stringPtr(firstString(item, "overview_translated", "overview", "overviews")),
 			StartDate:      stringPtr(firstString(item, "firstAired", "first_air_time")),
 			EndDate:        stringPtr(firstString(item, "lastAired")),
 			PosterUrl:      posterURL,
@@ -445,12 +449,33 @@ func firstString(m map[string]any, keys ...string) string {
 				return strconv.FormatInt(v, 10)
 			}
 		case map[string]any:
+			for _, langKey := range []string{"eng", "en", "english"} {
+				if nested, ok := v[langKey]; ok {
+					if nestedString, ok := nested.(string); ok {
+						nestedString = strings.TrimSpace(nestedString)
+						if nestedString != "" {
+							return nestedString
+						}
+					}
+				}
+			}
 			for _, nestedKey := range []string{"value", "id", "name", "title"} {
 				if nested, ok := v[nestedKey]; ok {
 					if nestedString, ok := nested.(string); ok {
 						nestedString = strings.TrimSpace(nestedString)
 						if nestedString != "" {
 							return nestedString
+						}
+					}
+				}
+			}
+		case []any:
+			for _, item := range v {
+				if m, ok := item.(map[string]any); ok {
+					lang := strings.ToLower(strings.TrimSpace(firstString(m, "language", "lang", "locale")))
+					if lang == "eng" || lang == "en" || lang == "english" {
+						if value := firstString(m, "name", "title", "value", "text"); value != "" {
+							return value
 						}
 					}
 				}
@@ -602,4 +627,49 @@ func truncateForLog(body []byte, max int) string {
 		return string(body)
 	}
 	return string(body[:max]) + "...(truncated)"
+}
+
+func extractTVDBAltTitles(item map[string]any, preferred string, original *string) []string {
+	seen := map[string]struct{}{}
+	add := func(value string, out *[]string) {
+		normalized := strings.TrimSpace(value)
+		if normalized == "" {
+			return
+		}
+		if strings.EqualFold(normalized, preferred) {
+			return
+		}
+		if original != nil && strings.EqualFold(normalized, *original) {
+			return
+		}
+		key := strings.ToLower(normalized)
+		if _, ok := seen[key]; ok {
+			return
+		}
+		seen[key] = struct{}{}
+		*out = append(*out, normalized)
+	}
+
+	out := make([]string, 0)
+
+	if aliases, ok := item["aliases"].([]any); ok {
+		for _, alias := range aliases {
+			switch v := alias.(type) {
+			case string:
+				add(v, &out)
+			case map[string]any:
+				add(firstString(v, "name", "title"), &out)
+			}
+		}
+	}
+
+	if arr, ok := item["translations"].([]any); ok {
+		for _, entry := range arr {
+			if m, ok := entry.(map[string]any); ok {
+				add(firstString(m, "name", "title"), &out)
+			}
+		}
+	}
+
+	return out
 }

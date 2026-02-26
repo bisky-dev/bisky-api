@@ -44,15 +44,19 @@ type graphQLEpisodesResponse struct {
 type anilistMediaSearch struct {
 	ID           int64             `json:"id"`
 	Type         string            `json:"type"`
+	Status       string            `json:"status"`
 	AverageScore *float64          `json:"averageScore"`
 	Description  *string           `json:"description"`
 	BannerImage  *string           `json:"bannerImage"`
+	Synonyms     []string          `json:"synonyms"`
 	Title        anilistMediaTitle `json:"title"`
 }
 
 type anilistMediaDetails struct {
 	ID          int64             `json:"id"`
 	Title       anilistMediaTitle `json:"title"`
+	Status      string            `json:"status"`
+	Synonyms    []string          `json:"synonyms"`
 	Description *string           `json:"description"`
 	BannerImage *string           `json:"bannerImage"`
 	CoverImage  struct {

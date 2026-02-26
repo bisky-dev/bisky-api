@@ -25,9 +25,11 @@ const (
     media(search: $query, type: ANIME, sort: SEARCH_MATCH) {
       id
       type
+      status
       averageScore
       description(asHtml: false)
       bannerImage
+      synonyms
       title {
         romaji
         english
@@ -39,8 +41,10 @@ const (
 	showQuery = `query ($id: Int!) {
   Media(id: $id, type: ANIME) {
     id
+    status
     description(asHtml: false)
     bannerImage
+    synonyms
     coverImage {
       large
     }
@@ -111,7 +115,9 @@ func (p *Provider) Search(ctx context.Context, query string, opts metadata.Searc
 			Show: showmodel.Show{
 				TitlePreferred: titlePreferred,
 				TitleOriginal:  titleOriginal,
+				AltTitles:      buildAniListAltTitles(titlePreferred, titleOriginal, media.Title, media.Synonyms),
 				Type:           typeValue,
+				Status:         showmodel.NormalizeStatusOrDefault(media.Status, showmodel.StatusOngoing),
 				Synopsis:       synopsis,
 				BannerUrl:      bannerURL,
 			},
@@ -154,12 +160,14 @@ func (p *Provider) GetShow(ctx context.Context, externalID string) (metadata.Sho
 		Show: showmodel.Show{
 			TitlePreferred: titlePreferred,
 			TitleOriginal:  titleOriginal,
+			AltTitles:      buildAniListAltTitles(titlePreferred, titleOriginal, response.Data.Media.Title, response.Data.Media.Synonyms),
 			Synopsis:       synopsis,
 			StartDate:      startDate,
 			EndDate:        endDate,
 			PosterUrl:      posterURL,
 			BannerUrl:      bannerURL,
 			Type:           "anime",
+			Status:         showmodel.NormalizeStatusOrDefault(response.Data.Media.Status, showmodel.StatusOngoing),
 		},
 	}, nil
 }
@@ -350,4 +358,41 @@ func normalizeAverageScore(value *float64) *float64 {
 
 func ptrString(value string) *string {
 	return &value
+}
+
+func buildAniListAltTitles(preferred string, original *string, title anilistMediaTitle, synonyms []string) []string {
+	seen := map[string]struct{}{}
+	add := func(value string, out *[]string) {
+		normalized := strings.TrimSpace(value)
+		if normalized == "" {
+			return
+		}
+		key := strings.ToLower(normalized)
+		if strings.EqualFold(normalized, preferred) {
+			return
+		}
+		if original != nil && strings.EqualFold(normalized, *original) {
+			return
+		}
+		if _, ok := seen[key]; ok {
+			return
+		}
+		seen[key] = struct{}{}
+		*out = append(*out, normalized)
+	}
+
+	out := make([]string, 0)
+	if title.English != nil {
+		add(*title.English, &out)
+	}
+	if title.Romaji != nil {
+		add(*title.Romaji, &out)
+	}
+	if title.Native != nil {
+		add(*title.Native, &out)
+	}
+	for _, item := range synonyms {
+		add(item, &out)
+	}
+	return out
 }
