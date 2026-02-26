@@ -5,12 +5,9 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/keithics/devops-dashboard/api/internal/db/sqlc"
 	"github.com/keithics/devops-dashboard/api/internal/httpx"
 )
-
-var showValidator = validator.New()
 
 func normalizeCreateShowRequest(req *createShowRequest) {
 	normalizeShowFields(
@@ -110,19 +107,19 @@ func validateShowPayload(
 	episodeCount *int64,
 	externalIDs externalIDs,
 ) error {
-	if err := validateVar(titlePreferred, "required,max=500", "titlePreferred is invalid"); err != nil {
+	if err := httpx.ValidateVar(titlePreferred, "required,max=500", "titlePreferred is invalid"); err != nil {
 		return err
 	}
-	if err := validateVar(showType, "required,oneof=anime tv movie ova special", "type is invalid"); err != nil {
+	if err := httpx.ValidateVar(showType, "required,oneof=anime tv movie ova special", "type is invalid"); err != nil {
 		return err
 	}
-	if err := validateVar(status, "required,oneof=ongoing finished", "status is invalid"); err != nil {
+	if err := httpx.ValidateVar(status, "required,oneof=ongoing finished", "status is invalid"); err != nil {
 		return err
 	}
-	if err := validateOptionalDate(startDate, "startDate is invalid"); err != nil {
+	if err := httpx.ValidateOptionalDate(startDate, "startDate is invalid"); err != nil {
 		return err
 	}
-	if err := validateOptionalDate(endDate, "endDate is invalid"); err != nil {
+	if err := httpx.ValidateOptionalDate(endDate, "endDate is invalid"); err != nil {
 		return err
 	}
 	if err := validateOptionalInt64(seasonCount, "gte=0", "seasonCount is invalid"); err != nil {
@@ -138,31 +135,14 @@ func validateShowPayload(
 }
 
 func validateShowID(id string) error {
-	return validateVar(id, "required,uuid4", "internalShowId is invalid")
-}
-
-func validateOptionalDate(value *string, message string) error {
-	if value == nil {
-		return nil
-	}
-	return validateVar(*value, "datetime=2006-01-02", message)
+	return httpx.ValidateVar(id, "required,uuid4", "internalShowId is invalid")
 }
 
 func validateOptionalInt64(value *int64, rule string, message string) error {
 	if value == nil {
 		return nil
 	}
-	if err := showValidator.Var(*value, rule); err != nil {
-		return errors.New(message)
-	}
-	return nil
-}
-
-func validateVar(value string, rule, message string) error {
-	if err := showValidator.Var(value, rule); err != nil {
-		return errors.New(message)
-	}
-	return nil
+	return httpx.ValidateVar(*value, rule, message)
 }
 
 func validateExternalIDs(ids externalIDs) error {
@@ -170,13 +150,13 @@ func validateExternalIDs(ids externalIDs) error {
 		return errors.New("externalIds must include at least one provider id")
 	}
 	if ids.Anilist != nil {
-		if err := showValidator.Var(*ids.Anilist, "gt=0"); err != nil {
-			return errors.New("externalIds.anilist is invalid")
+		if err := httpx.ValidateVar(*ids.Anilist, "gt=0", "externalIds.anilist is invalid"); err != nil {
+			return err
 		}
 	}
 	if ids.Tvdb != nil {
-		if err := showValidator.Var(*ids.Tvdb, "gt=0"); err != nil {
-			return errors.New("externalIds.tvdb is invalid")
+		if err := httpx.ValidateVar(*ids.Tvdb, "gt=0", "externalIds.tvdb is invalid"); err != nil {
+			return err
 		}
 	}
 	return nil

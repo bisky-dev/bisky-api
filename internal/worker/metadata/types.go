@@ -5,6 +5,7 @@ import "context"
 type ProviderName string
 
 const (
+	ProviderAniDB   ProviderName = "anidb"
 	ProviderAniList ProviderName = "anilist"
 	ProviderTVDB    ProviderName = "tvdb"
 )

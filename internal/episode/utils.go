@@ -5,12 +5,9 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/keithics/devops-dashboard/api/internal/db/sqlc"
 	"github.com/keithics/devops-dashboard/api/internal/httpx"
 )
-
-var episodeValidator = validator.New()
 
 func normalizeCreateEpisodeRequest(req *createEpisodeRequest) {
 	normalizeEpisodeFields(
@@ -43,24 +40,24 @@ func validateUpdateEpisodeRequest(req updateEpisodeRequest) error {
 }
 
 func validateEpisodePayload(showID string, seasonNumber, episodeNumber int64, title string, airDate *string, runtimeMinutes *int64, externalIDs externalIDs) error {
-	if err := validateVar(showID, "required,uuid4", "showId is invalid"); err != nil {
+	if err := httpx.ValidateVar(showID, "required,uuid4", "showId is invalid"); err != nil {
 		return err
 	}
-	if err := episodeValidator.Var(seasonNumber, "gte=0"); err != nil {
-		return errors.New("seasonNumber is invalid")
-	}
-	if err := episodeValidator.Var(episodeNumber, "gte=0"); err != nil {
-		return errors.New("episodeNumber is invalid")
-	}
-	if err := validateVar(title, "required,max=500", "title is invalid"); err != nil {
+	if err := httpx.ValidateVar(seasonNumber, "gte=0", "seasonNumber is invalid"); err != nil {
 		return err
 	}
-	if err := validateOptionalDate(airDate, "airDate is invalid"); err != nil {
+	if err := httpx.ValidateVar(episodeNumber, "gte=0", "episodeNumber is invalid"); err != nil {
+		return err
+	}
+	if err := httpx.ValidateVar(title, "required,max=500", "title is invalid"); err != nil {
+		return err
+	}
+	if err := httpx.ValidateOptionalDate(airDate, "airDate is invalid"); err != nil {
 		return err
 	}
 	if runtimeMinutes != nil {
-		if err := episodeValidator.Var(*runtimeMinutes, "gte=0"); err != nil {
-			return errors.New("runtimeMinutes is invalid")
+		if err := httpx.ValidateVar(*runtimeMinutes, "gte=0", "runtimeMinutes is invalid"); err != nil {
+			return err
 		}
 	}
 	if err := validateExternalIDs(externalIDs); err != nil {
@@ -70,21 +67,7 @@ func validateEpisodePayload(showID string, seasonNumber, episodeNumber int64, ti
 }
 
 func validateEpisodeID(id string) error {
-	return validateVar(id, "required,uuid4", "internalEpisodeId is invalid")
-}
-
-func validateOptionalDate(value *string, message string) error {
-	if value == nil {
-		return nil
-	}
-	return validateVar(*value, "datetime=2006-01-02", message)
-}
-
-func validateVar(value string, rule, message string) error {
-	if err := episodeValidator.Var(value, rule); err != nil {
-		return errors.New(message)
-	}
-	return nil
+	return httpx.ValidateVar(id, "required,uuid4", "internalEpisodeId is invalid")
 }
 
 func validateExternalIDs(ids externalIDs) error {
@@ -92,13 +75,13 @@ func validateExternalIDs(ids externalIDs) error {
 		return errors.New("externalIds must include at least one provider id")
 	}
 	if ids.Anilist != nil {
-		if err := episodeValidator.Var(*ids.Anilist, "gt=0"); err != nil {
-			return errors.New("externalIds.anilist is invalid")
+		if err := httpx.ValidateVar(*ids.Anilist, "gt=0", "externalIds.anilist is invalid"); err != nil {
+			return err
 		}
 	}
 	if ids.Tvdb != nil {
-		if err := episodeValidator.Var(*ids.Tvdb, "gt=0"); err != nil {
-			return errors.New("externalIds.tvdb is invalid")
+		if err := httpx.ValidateVar(*ids.Tvdb, "gt=0", "externalIds.tvdb is invalid"); err != nil {
+			return err
 		}
 	}
 	return nil

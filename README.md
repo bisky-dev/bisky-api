@@ -96,6 +96,9 @@ Then open:
 - `POST /episodes`
 - `PUT /episodes/:internalEpisodeId`
 - `DELETE /episodes/:internalEpisodeId`
+- `GET /metadata/search?query=...&type=anidb|tvdb`
+- `GET /metadata/show/:externalId?type=anidb|tvdb`
+- `GET /metadata/episodes/:externalId?type=anidb|tvdb`
 
 Detailed endpoint docs:
 - `docs/api.md`

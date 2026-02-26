@@ -11,7 +11,11 @@ import (
 	"github.com/keithics/devops-dashboard/api/internal/db/sqlc"
 	"github.com/keithics/devops-dashboard/api/internal/episode"
 	"github.com/keithics/devops-dashboard/api/internal/httperr"
+	"github.com/keithics/devops-dashboard/api/internal/metadata"
 	"github.com/keithics/devops-dashboard/api/internal/show"
+	workermeta "github.com/keithics/devops-dashboard/api/internal/worker/metadata"
+	"github.com/keithics/devops-dashboard/api/internal/worker/metadata/providers/anilist"
+	"github.com/keithics/devops-dashboard/api/internal/worker/metadata/providers/tvdb"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -26,12 +30,20 @@ func NewServer(cfg config.Config, pool *pgxpool.Pool) *Server {
 	q := sqlc.New(pool)
 	authHandler := auth.NewHandler(q, cfg.TokenEncryptionKey)
 	episodeHandler := episode.NewHandler(q)
+	anilistProvider := anilist.New()
+	metadataRegistry := workermeta.NewRegistry(map[workermeta.ProviderName]workermeta.Provider{
+		workermeta.ProviderAniDB:   anilistProvider,
+		workermeta.ProviderAniList: anilistProvider,
+		workermeta.ProviderTVDB:    tvdb.New(),
+	})
+	metadataHandler := metadata.NewHandler(metadata.NewService(workermeta.NewService(metadataRegistry)))
 	showHandler := show.NewHandler(q)
 
 	r.GET("/health", healthHandler)
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	auth.RegisterRoutes(r, authHandler)
 	episode.RegisterRoutes(r, episodeHandler)
+	metadata.RegisterRoutes(r, metadataHandler)
 	show.RegisterRoutes(r, showHandler)
 
 	return &Server{

@@ -231,3 +231,23 @@ Success response (`200`): updated episode object.
 Delete one episode by UUID.
 
 Success response (`204`): no body.
+
+---
+
+## Metadata
+
+Provider type query param:
+- `type=anidb` (default)
+- `type=tvdb`
+
+### `GET /metadata/search?query={q}&type={type}`
+
+Search provider metadata by text query.
+
+### `GET /metadata/show/{externalId}?type={type}`
+
+Get provider show details by provider-specific external ID.
+
+### `GET /metadata/episodes/{externalId}?type={type}`
+
+List provider episodes by provider-specific external ID.

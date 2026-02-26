@@ -1,13 +1,10 @@
 package auth
 
 import (
-	"errors"
 	"strings"
 
-	"github.com/go-playground/validator/v10"
+	"github.com/keithics/devops-dashboard/api/internal/httpx"
 )
-
-var authValidator = validator.New()
 
 const (
 	emailValidationRule    = "required,email,max=254"
@@ -37,16 +34,9 @@ func validateForgotPasswordRequest(req forgotPasswordRequest) error {
 }
 
 func validateEmail(email string) error {
-	return validateVar(email, emailValidationRule, "email is invalid")
+	return httpx.ValidateVar(email, emailValidationRule, "email is invalid")
 }
 
 func validatePassword(password string) error {
-	return validateVar(password, passwordValidationRule, "password is invalid")
-}
-
-func validateVar(value string, rule, message string) error {
-	if err := authValidator.Var(value, rule); err != nil {
-		return errors.New(message)
-	}
-	return nil
+	return httpx.ValidateVar(password, passwordValidationRule, "password is invalid")
 }
