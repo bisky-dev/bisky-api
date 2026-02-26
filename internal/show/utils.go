@@ -83,6 +83,7 @@ func validateCreateShowRequest(req createShowRequest) error {
 		req.EndDate,
 		req.SeasonCount,
 		req.EpisodeCount,
+		req.ExternalIDs,
 	)
 }
 
@@ -95,6 +96,7 @@ func validateUpdateShowRequest(req updateShowRequest) error {
 		req.EndDate,
 		req.SeasonCount,
 		req.EpisodeCount,
+		req.ExternalIDs,
 	)
 }
 
@@ -106,6 +108,7 @@ func validateShowPayload(
 	endDate *string,
 	seasonCount *int64,
 	episodeCount *int64,
+	externalIDs externalIDs,
 ) error {
 	if err := validateVar(titlePreferred, "required,max=500", "titlePreferred is invalid"); err != nil {
 		return err
@@ -126,6 +129,9 @@ func validateShowPayload(
 		return err
 	}
 	if err := validateOptionalInt64(episodeCount, "gte=0", "episodeCount is invalid"); err != nil {
+		return err
+	}
+	if err := validateExternalIDs(externalIDs); err != nil {
 		return err
 	}
 	return nil
@@ -155,6 +161,23 @@ func validateOptionalInt64(value *int64, rule string, message string) error {
 func validateVar(value string, rule, message string) error {
 	if err := showValidator.Var(value, rule); err != nil {
 		return errors.New(message)
+	}
+	return nil
+}
+
+func validateExternalIDs(ids externalIDs) error {
+	if ids.Anilist == nil && ids.Tvdb == nil {
+		return errors.New("externalIds must include at least one provider id")
+	}
+	if ids.Anilist != nil {
+		if err := showValidator.Var(*ids.Anilist, "gt=0"); err != nil {
+			return errors.New("externalIds.anilist is invalid")
+		}
+	}
+	if ids.Tvdb != nil {
+		if err := showValidator.Var(*ids.Tvdb, "gt=0"); err != nil {
+			return errors.New("externalIds.tvdb is invalid")
+		}
 	}
 	return nil
 }

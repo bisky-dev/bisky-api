@@ -91,6 +91,11 @@ Then open:
 - `POST /shows`
 - `PUT /shows/:internalShowId`
 - `DELETE /shows/:internalShowId`
+- `GET /episodes`
+- `GET /episodes/:internalEpisodeId`
+- `POST /episodes`
+- `PUT /episodes/:internalEpisodeId`
+- `DELETE /episodes/:internalEpisodeId`
 
 Detailed endpoint docs:
 - `docs/api.md`

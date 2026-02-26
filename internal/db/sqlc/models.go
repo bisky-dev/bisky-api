@@ -79,3 +79,16 @@ type Show struct {
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 }
+
+type Episode struct {
+	InternalEpisodeID string
+	ShowID            string
+	SeasonNumber      int64
+	EpisodeNumber     int64
+	Title             string
+	AirDate           *string
+	RuntimeMinutes    *int64
+	ExternalIds       []byte
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+}

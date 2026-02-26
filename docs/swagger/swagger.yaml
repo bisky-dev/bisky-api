@@ -49,6 +49,70 @@ definitions:
       id:
         type: string
     type: object
+  episode.createEpisodeRequest:
+    properties:
+      airDate:
+        type: string
+      episodeNumber:
+        type: integer
+      externalIds:
+        $ref: '#/definitions/episode.externalIDs'
+      runtimeMinutes:
+        type: integer
+      seasonNumber:
+        type: integer
+      showId:
+        type: string
+      title:
+        type: string
+    type: object
+  episode.episodeResponse:
+    properties:
+      airDate:
+        type: string
+      createdAt:
+        type: string
+      episodeNumber:
+        type: integer
+      externalIds:
+        $ref: '#/definitions/episode.externalIDs'
+      internalEpisodeId:
+        type: string
+      runtimeMinutes:
+        type: integer
+      seasonNumber:
+        type: integer
+      showId:
+        type: string
+      title:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  episode.externalIDs:
+    properties:
+      anilist:
+        type: integer
+      tvdb:
+        type: integer
+    type: object
+  episode.updateEpisodeRequest:
+    properties:
+      airDate:
+        type: string
+      episodeNumber:
+        type: integer
+      externalIds:
+        $ref: '#/definitions/episode.externalIDs'
+      runtimeMinutes:
+        type: integer
+      seasonNumber:
+        type: integer
+      showId:
+        type: string
+      title:
+        type: string
+    type: object
   http.healthResponse:
     properties:
       ok:
@@ -277,6 +341,151 @@ paths:
       summary: Register user
       tags:
       - auth
+  /episodes:
+    get:
+      description: List all episodes
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/episode.episodeResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+      summary: List episodes
+      tags:
+      - episodes
+    post:
+      consumes:
+      - application/json
+      description: Create a new episode record
+      parameters:
+      - description: Episode payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/episode.createEpisodeRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/episode.episodeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+      summary: Create episode
+      tags:
+      - episodes
+  /episodes/{internalEpisodeId}:
+    delete:
+      description: Delete an episode by internal episode id
+      parameters:
+      - description: Internal episode UUID
+        in: path
+        name: internalEpisodeId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+      summary: Delete episode
+      tags:
+      - episodes
+    get:
+      description: Get an episode by internal episode id
+      parameters:
+      - description: Internal episode UUID
+        in: path
+        name: internalEpisodeId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/episode.episodeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+      summary: Get episode
+      tags:
+      - episodes
+    put:
+      consumes:
+      - application/json
+      description: Update an episode by internal episode id
+      parameters:
+      - description: Internal episode UUID
+        in: path
+        name: internalEpisodeId
+        required: true
+        type: string
+      - description: Episode payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/episode.updateEpisodeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/episode.episodeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+      summary: Update episode
+      tags:
+      - episodes
   /health:
     get:
       description: Service liveness endpoint

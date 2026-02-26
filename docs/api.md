@@ -180,3 +180,54 @@ Success response (`200`): updated show object.
 Delete one show by UUID.
 
 Success response (`204`): no body.
+
+---
+
+## Episodes
+
+### `POST /episodes`
+
+Create an episode.
+
+Request body:
+
+```json
+{
+  "showId": "3cb5e44c-9cb6-4eb1-b34d-9c57e513c127",
+  "seasonNumber": 1,
+  "episodeNumber": 1,
+  "title": "Journey's End",
+  "airDate": "2023-09-29",
+  "runtimeMinutes": 24,
+  "externalIds": {
+    "anilist": 1,
+    "tvdb": 2
+  }
+}
+```
+
+Success response (`201`): episode object.
+
+### `GET /episodes`
+
+List episodes.
+
+Success response (`200`): array of episode objects.
+
+### `GET /episodes/{internalEpisodeId}`
+
+Get one episode by UUID.
+
+Success response (`200`): episode object.
+
+### `PUT /episodes/{internalEpisodeId}`
+
+Update one episode by UUID (same body shape as create).
+
+Success response (`200`): updated episode object.
+
+### `DELETE /episodes/{internalEpisodeId}`
+
+Delete one episode by UUID.
+
+Success response (`204`): no body.

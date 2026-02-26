@@ -165,6 +165,225 @@ const docTemplate = `{
                 }
             }
         },
+        "/episodes": {
+            "get": {
+                "description": "List all episodes",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "episodes"
+                ],
+                "summary": "List episodes",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/episode.episodeResponse"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new episode record",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "episodes"
+                ],
+                "summary": "Create episode",
+                "parameters": [
+                    {
+                        "description": "Episode payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/episode.createEpisodeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/episode.episodeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/episodes/{internalEpisodeId}": {
+            "get": {
+                "description": "Get an episode by internal episode id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "episodes"
+                ],
+                "summary": "Get episode",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Internal episode UUID",
+                        "name": "internalEpisodeId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/episode.episodeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an episode by internal episode id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "episodes"
+                ],
+                "summary": "Update episode",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Internal episode UUID",
+                        "name": "internalEpisodeId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Episode payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/episode.updateEpisodeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/episode.episodeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete an episode by internal episode id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "episodes"
+                ],
+                "summary": "Delete episode",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Internal episode UUID",
+                        "name": "internalEpisodeId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/health": {
             "get": {
                 "description": "Service liveness endpoint",
@@ -479,6 +698,104 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "episode.createEpisodeRequest": {
+            "type": "object",
+            "properties": {
+                "airDate": {
+                    "type": "string"
+                },
+                "episodeNumber": {
+                    "type": "integer"
+                },
+                "externalIds": {
+                    "$ref": "#/definitions/episode.externalIDs"
+                },
+                "runtimeMinutes": {
+                    "type": "integer"
+                },
+                "seasonNumber": {
+                    "type": "integer"
+                },
+                "showId": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "episode.episodeResponse": {
+            "type": "object",
+            "properties": {
+                "airDate": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "episodeNumber": {
+                    "type": "integer"
+                },
+                "externalIds": {
+                    "$ref": "#/definitions/episode.externalIDs"
+                },
+                "internalEpisodeId": {
+                    "type": "string"
+                },
+                "runtimeMinutes": {
+                    "type": "integer"
+                },
+                "seasonNumber": {
+                    "type": "integer"
+                },
+                "showId": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "episode.externalIDs": {
+            "type": "object",
+            "properties": {
+                "anilist": {
+                    "type": "integer"
+                },
+                "tvdb": {
+                    "type": "integer"
+                }
+            }
+        },
+        "episode.updateEpisodeRequest": {
+            "type": "object",
+            "properties": {
+                "airDate": {
+                    "type": "string"
+                },
+                "episodeNumber": {
+                    "type": "integer"
+                },
+                "externalIds": {
+                    "$ref": "#/definitions/episode.externalIDs"
+                },
+                "runtimeMinutes": {
+                    "type": "integer"
+                },
+                "seasonNumber": {
+                    "type": "integer"
+                },
+                "showId": {
+                    "type": "string"
+                },
+                "title": {
                     "type": "string"
                 }
             }
