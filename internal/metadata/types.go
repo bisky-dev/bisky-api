@@ -1,6 +1,7 @@
 package metadata
 
 import (
+	jobshow "github.com/keithics/devops-dashboard/api/internal/job/show"
 	worker "github.com/keithics/devops-dashboard/api/internal/worker/metadata"
 )
 
@@ -10,6 +11,7 @@ const (
 	ctxExternalIDKey   = "metadata.external.id"
 	ctxSearchOptsKey   = "metadata.search.opts"
 	ctxEpisodesOptsKey = "metadata.episodes.opts"
+	ctxAddShowRequest  = "metadata.add.show.request"
 )
 
 type Handler struct {
@@ -17,7 +19,8 @@ type Handler struct {
 }
 
 type Service struct {
-	worker *worker.Service
+	worker  *worker.Service
+	jobShow *jobshow.Service
 }
 
 type SearchHitResponse struct {
@@ -51,4 +54,22 @@ type EpisodeResponse struct {
 	Title          string  `json:"title"`
 	AirDate        *string `json:"airDate,omitempty"`
 	RuntimeMinutes *int64  `json:"runtimeMinutes,omitempty"`
+}
+
+type AddShowRequest struct {
+	Provider       string   `json:"provider"`
+	ExternalID     string   `json:"externalId"`
+	TitlePreferred string   `json:"titlePreferred"`
+	TitleOriginal  *string  `json:"titleOriginal,omitempty"`
+	Type           *string  `json:"type,omitempty"`
+	Score          *float64 `json:"score,omitempty"`
+	Description    *string  `json:"description,omitempty"`
+	BannerURL      *string  `json:"bannerUrl,omitempty"`
+}
+
+type AddShowResponse struct {
+	InternalSearchResultID string `json:"internalSearchResultId"`
+	InternalJobShowID      string `json:"internalJobShowId"`
+	Status                 string `json:"status"`
+	RetryCount             int32  `json:"retryCount"`
 }

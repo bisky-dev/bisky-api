@@ -60,3 +60,20 @@ func (h *Handler) BindEpisodesOpts() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+func (h *Handler) BindAddShow() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var req AddShowRequest
+		if httpx.AbortIfErr(c, c.ShouldBindJSON(&req)) {
+			return
+		}
+
+		normalizeAddShowRequest(&req)
+		if httpx.AbortIfErr(c, validateAddShowRequest(req)) {
+			return
+		}
+
+		c.Set(ctxAddShowRequest, req)
+		c.Next()
+	}
+}

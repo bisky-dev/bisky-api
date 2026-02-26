@@ -11,6 +11,7 @@ import (
 	"github.com/keithics/devops-dashboard/api/internal/db/sqlc"
 	"github.com/keithics/devops-dashboard/api/internal/episode"
 	"github.com/keithics/devops-dashboard/api/internal/httperr"
+	jobshow "github.com/keithics/devops-dashboard/api/internal/job/show"
 	"github.com/keithics/devops-dashboard/api/internal/metadata"
 	"github.com/keithics/devops-dashboard/api/internal/show"
 	workermeta "github.com/keithics/devops-dashboard/api/internal/worker/metadata"
@@ -36,7 +37,8 @@ func NewServer(cfg config.Config, pool *pgxpool.Pool) *Server {
 		workermeta.ProviderAniList: anilistProvider,
 		workermeta.ProviderTVDB:    tvdb.New(),
 	})
-	metadataHandler := metadata.NewHandler(metadata.NewService(workermeta.NewService(metadataRegistry)))
+	jobShowService := jobshow.NewService(pool)
+	metadataHandler := metadata.NewHandler(metadata.NewService(workermeta.NewService(metadataRegistry), jobShowService))
 	showHandler := show.NewHandler(q)
 
 	r.GET("/health", healthHandler)

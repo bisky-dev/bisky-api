@@ -24,7 +24,7 @@ func parseProvider(raw string) (worker.ProviderName, error) {
 	case string(worker.ProviderAniList):
 		return worker.ProviderAniList, nil
 	default:
-		return "", errors.New("type must be one of anidb|tvdb")
+		return "", errors.New("type must be one of anidb|anilist|tvdb")
 	}
 }
 
@@ -89,4 +89,42 @@ func getEpisodesInput(c *gin.Context) (worker.ProviderName, string, worker.ListE
 		return "", "", worker.ListEpisodesOpts{}, false
 	}
 	return provider, externalID, opts, true
+}
+
+func normalizeAddShowRequest(req *AddShowRequest) {
+	req.Provider = strings.ToLower(strings.TrimSpace(req.Provider))
+	req.ExternalID = strings.TrimSpace(req.ExternalID)
+	req.TitlePreferred = strings.TrimSpace(req.TitlePreferred)
+	req.TitleOriginal = httpx.TrimmedOrNil(req.TitleOriginal)
+	req.Type = httpx.TrimmedOrNil(req.Type)
+	req.Description = httpx.TrimmedOrNil(req.Description)
+	req.BannerURL = httpx.TrimmedOrNil(req.BannerURL)
+}
+
+func validateAddShowRequest(req AddShowRequest) error {
+	if err := httpx.ValidateVar(req.Provider, "required,oneof=anidb anilist tvdb", "provider is invalid"); err != nil {
+		return err
+	}
+	if err := httpx.ValidateVar(req.ExternalID, "required,max=128", "externalId is invalid"); err != nil {
+		return err
+	}
+	if err := httpx.ValidateVar(req.TitlePreferred, "required,max=500", "titlePreferred is invalid"); err != nil {
+		return err
+	}
+	if req.Type != nil {
+		if err := httpx.ValidateVar(*req.Type, "oneof=anime tv movie ova special", "type is invalid"); err != nil {
+			return err
+		}
+	}
+	if req.Score != nil {
+		if err := httpx.ValidateVar(*req.Score, "gte=0", "score is invalid"); err != nil {
+			return err
+		}
+	}
+	if req.BannerURL != nil {
+		if err := httpx.ValidateVar(*req.BannerURL, "url", "bannerUrl is invalid"); err != nil {
+			return err
+		}
+	}
+	return nil
 }

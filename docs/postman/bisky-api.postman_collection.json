@@ -244,6 +244,49 @@
           }
         }
       ]
+    },
+    {
+      "name": "Metadata",
+      "item": [
+        {
+          "name": "GET /metadata/search",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/metadata/search?query=frieren&type=anidb&page=1&limit=10"
+          }
+        },
+        {
+          "name": "POST /metadata/show",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"provider\": \"anidb\",\n  \"externalId\": \"16498\",\n  \"titlePreferred\": \"Sousou no Frieren\",\n  \"titleOriginal\": \"葬送のフリーレン\",\n  \"type\": \"anime\",\n  \"score\": 95.3,\n  \"description\": \"After the hero party defeats the Demon King...\",\n  \"bannerUrl\": \"https://s4.anilist.co/file/anilistcdn/media/anime/banner/16498.jpg\"\n}"
+            },
+            "url": "{{baseUrl}}/metadata/show"
+          }
+        },
+        {
+          "name": "GET /metadata/show/:externalId",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/metadata/show/16498?type=anidb"
+          }
+        },
+        {
+          "name": "GET /metadata/episodes/:externalId",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/metadata/episodes/16498?type=anidb&page=1&limit=25"
+          }
+        }
+      ]
     }
   ]
 }
