@@ -1,0 +1,21 @@
+version: "2"
+
+run:
+  timeout: 3m
+  tests: false
+
+linters:
+  default: none
+  enable:
+    - errcheck
+    - govet
+    - ineffassign
+    - staticcheck
+  exclusions:
+    generated: strict
+
+linters-settings:
+  staticcheck:
+    checks:
+      - SA*
+      - U1000
