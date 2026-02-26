@@ -1,57 +1,60 @@
-# devops-dashboard API
+# bisky-api
 
-Go API using:
+Go API scaffold using:
 - Gin (HTTP)
-- pgx (Postgres driver/pool)
-- sqlc-style query layer (generated code can replace the hand-written `internal/db/sqlc`)
-- golang-migrate (migrations)
+- pgx (Postgres pool/driver)
+- sqlc query layer
+- golang-migrate (SQL migrations)
 
-## Local dev (example)
+## Requirements
 
-1. Set env for your external Postgres:
+- Go (1.23+)
+- PostgreSQL (required)
+- `migrate` CLI
 
-```sh
-cp api/.env.example api/.env
-# then edit DATABASE_URL to your external DB
-```
-
-2. Run migrations (requires `migrate` CLI installed):
+Install migrate (macOS/Homebrew):
 
 ```sh
-make -C api migrate-up
+brew install golang-migrate
 ```
 
-3. Run the API:
+## Local Setup
+
+From this directory (`api/`):
 
 ```sh
-make -C api run
+cp .env.example .env
 ```
 
-4. Hot reload (nodemon-style)
+Edit `.env` and set:
+- `DATABASE_URL` (required)
+- `TOKEN_ENCRYPTION_KEY` (or `PAT_ENCRYPTION_KEY`)
+- `PORT` (optional, defaults to `8080`)
 
-Install `air` once:
+## Run Migrations
+
+```sh
+make migrate-up
+```
+
+Current baseline migration:
+- `000001_create_users` (`users` table only)
+
+## Run API
+
+```sh
+make run
+```
+
+`make run` auto-loads variables from `.env`.
+
+Hot reload:
 
 ```sh
 go install github.com/air-verse/air@latest
+make dev
 ```
 
-Then run:
-
-```sh
-make -C api dev
-```
-
-## Optional local Postgres (Docker)
-
-If you do not want to use an external DB during development:
-
-```sh
-make postgres-up
-cp api/.env.example api/.env
-make -C api migrate-up
-make -C api run
-```
-
-## Endpoints
+## Endpoint
 
 - `GET /health`
