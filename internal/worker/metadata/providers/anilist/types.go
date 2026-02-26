@@ -45,6 +45,8 @@ type anilistMediaSearch struct {
 	ID           int64             `json:"id"`
 	Type         string            `json:"type"`
 	AverageScore *float64          `json:"averageScore"`
+	Description  *string           `json:"description"`
+	BannerImage  *string           `json:"bannerImage"`
 	Title        anilistMediaTitle `json:"title"`
 }
 

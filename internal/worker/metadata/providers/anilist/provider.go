@@ -25,6 +25,8 @@ const (
       id
       type
       averageScore
+      description(asHtml: false)
+      bannerImage
       title {
         romaji
         english
@@ -102,6 +104,8 @@ func (p *Provider) Search(ctx context.Context, query string, opts metadata.Searc
 		titlePreferred, titleOriginal := pickTitles(media.Title)
 		typeValue := mapAniListType(media.Type)
 		score := normalizeAverageScore(media.AverageScore)
+		description := normalizeStringPtr(media.Description)
+		bannerURL := normalizeStringPtr(media.BannerImage)
 
 		hits = append(hits, metadata.SearchHit{
 			Provider:       metadata.ProviderAniList,
@@ -110,6 +114,8 @@ func (p *Provider) Search(ctx context.Context, query string, opts metadata.Searc
 			TitleOriginal:  titleOriginal,
 			Type:           typeValue,
 			Score:          score,
+			Description:    description,
+			BannerURL:      bannerURL,
 		})
 	}
 

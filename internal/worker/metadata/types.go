@@ -27,6 +27,8 @@ type SearchHit struct {
 	TitleOriginal  *string      `json:"titleOriginal,omitempty"`
 	Type           string       `json:"type,omitempty"`
 	Score          *float64     `json:"score,omitempty"`
+	Description    *string      `json:"description,omitempty"`
+	BannerURL      *string      `json:"bannerUrl,omitempty"`
 }
 
 type Show struct {
