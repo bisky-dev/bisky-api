@@ -6,3 +6,4 @@
 - [ ] Update Swagger docs to match current metadata response shapes.
 - [ ] Add integration tests for AniList and TVDB provider adapters.
 - [ ] Merge AniList episode schedules with TVDB episode titles so AniList episode responses use real titles instead of fallback `Episode N`.
+- [ ] Next release: move to Sonarr-style flow (no automatic full-franchise add). Add read-only related-show suggestions endpoint and keep creation as explicit add actions (single or bulk).
