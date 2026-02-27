@@ -67,33 +67,61 @@ func (s *Service) EnqueueFromSearchResult(ctx context.Context, params EnqueueFro
 	if err != nil {
 		return EnqueueFromSearchResultResult{}, err
 	}
-
-	committed := false
 	defer func() {
-		if !committed {
-			_ = tx.Rollback(ctx)
-		}
+		_ = tx.Rollback(ctx)
 	}()
 
+	pending, found, err := findPendingJobByExternalID(ctx, tx, params.ExternalID)
+	if err != nil {
+		return EnqueueFromSearchResultResult{}, err
+	}
+	if found {
+		if err := tx.Commit(ctx); err != nil {
+			return EnqueueFromSearchResultResult{}, err
+		}
+		return pending, nil
+	}
+
+	internalShowID, err := insertShow(ctx, tx, params)
+	if err != nil {
+		return EnqueueFromSearchResultResult{}, err
+	}
+
+	if err := insertEpisodes(ctx, tx, internalShowID, params.Episodes); err != nil {
+		return EnqueueFromSearchResultResult{}, err
+	}
+
+	result, err := insertShowJob(ctx, tx, internalShowID)
+	if err != nil {
+		return EnqueueFromSearchResultResult{}, err
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return EnqueueFromSearchResultResult{}, err
+	}
+	return result, nil
+}
+
+func findPendingJobByExternalID(ctx context.Context, tx pgx.Tx, externalID string) (EnqueueFromSearchResultResult, bool, error) {
 	var result EnqueueFromSearchResultResult
-	err = tx.QueryRow(ctx, findPendingJobByExternalIDSQL, params.ExternalID).Scan(
+	err := tx.QueryRow(ctx, findPendingJobByExternalIDSQL, externalID).Scan(
 		&result.InternalShowID,
 		&result.InternalJobShowID,
 		&result.Status,
 		&result.RetryCount,
 	)
 	if err == nil {
-		if err := tx.Commit(ctx); err != nil {
-			return EnqueueFromSearchResultResult{}, err
-		}
-		committed = true
-		return result, nil
+		return result, true, nil
 	}
-	if err != pgx.ErrNoRows {
-		return EnqueueFromSearchResultResult{}, err
+	if err == pgx.ErrNoRows {
+		return EnqueueFromSearchResultResult{}, false, nil
 	}
+	return EnqueueFromSearchResultResult{}, false, err
+}
 
-	if err := tx.QueryRow(ctx, insertShowSQL,
+func insertShow(ctx context.Context, tx pgx.Tx, params EnqueueFromSearchResultParams) (string, error) {
+	var internalShowID string
+	err := tx.QueryRow(ctx, insertShowSQL,
 		params.TitlePreferred,
 		params.TitleOriginal,
 		params.AltTitles,
@@ -107,13 +135,17 @@ func (s *Service) EnqueueFromSearchResult(ctx context.Context, params EnqueueFro
 		params.SeasonCount,
 		params.EpisodeCount,
 		params.ExternalID,
-	).Scan(&result.InternalShowID); err != nil {
-		return EnqueueFromSearchResultResult{}, err
+	).Scan(&internalShowID)
+	if err != nil {
+		return "", err
 	}
+	return internalShowID, nil
+}
 
-	for _, episode := range params.Episodes {
+func insertEpisodes(ctx context.Context, tx pgx.Tx, internalShowID string, episodes []EpisodeInput) error {
+	for _, episode := range episodes {
 		if _, err := tx.Exec(ctx, insertEpisodeSQL,
-			result.InternalShowID,
+			internalShowID,
 			episode.SeasonNumber,
 			episode.EpisodeNumber,
 			episode.Title,
@@ -121,18 +153,21 @@ func (s *Service) EnqueueFromSearchResult(ctx context.Context, params EnqueueFro
 			episode.RuntimeMinutes,
 			episode.ExternalID,
 		); err != nil {
-			return EnqueueFromSearchResultResult{}, err
+			return err
 		}
 	}
+	return nil
+}
 
-	if err := tx.QueryRow(ctx, insertShowJobSQL, result.InternalShowID).Scan(&result.InternalJobShowID, &result.Status, &result.RetryCount); err != nil {
+func insertShowJob(ctx context.Context, tx pgx.Tx, internalShowID string) (EnqueueFromSearchResultResult, error) {
+	result := EnqueueFromSearchResultResult{InternalShowID: internalShowID}
+	err := tx.QueryRow(ctx, insertShowJobSQL, internalShowID).Scan(
+		&result.InternalJobShowID,
+		&result.Status,
+		&result.RetryCount,
+	)
+	if err != nil {
 		return EnqueueFromSearchResultResult{}, err
 	}
-
-	if err := tx.Commit(ctx); err != nil {
-		return EnqueueFromSearchResultResult{}, err
-	}
-	committed = true
-
 	return result, nil
 }
