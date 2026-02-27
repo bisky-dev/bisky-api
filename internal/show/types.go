@@ -49,3 +49,19 @@ type showResponse struct {
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
+
+type workerDataResponse struct {
+	InternalShowID string             `json:"internalShowId"`
+	Show           workerShowResponse `json:"show"`
+	Episodes       []workerEpisode    `json:"episodes"`
+}
+
+type workerShowResponse struct {
+	ExternalID string   `json:"externalId"`
+	AltTitles  []string `json:"altTitles"`
+}
+
+type workerEpisode struct {
+	EpisodeNumber int64   `json:"episodeNumber"`
+	AirDate       *string `json:"airDate"`
+}

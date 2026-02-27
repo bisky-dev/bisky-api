@@ -179,3 +179,25 @@ func (h *Handler) DeleteShow(c *gin.Context) {
 
 	c.Status(http.StatusNoContent)
 }
+
+// ListWorkerData godoc
+//
+//	@Summary		List worker show data
+//	@Description	List shows and episodes in worker payload format
+//	@Tags			shows
+//	@Produce		json
+//	@Success		200	{array}		workerDataResponse
+//	@Failure		500	{object}	httperr.APIErrorResponse
+//	@Router			/shows/worker [get]
+func (h *Handler) ListWorkerData(c *gin.Context) {
+	response, err := h.svc.ListWorkerData(c.Request.Context())
+	if err != nil {
+		if httpx.AbortIfDBErr(c, err, "failed to list worker data") {
+			return
+		}
+		httperr.Abort(c, httperr.Internal("failed to list worker data").WithCause(err))
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
+}

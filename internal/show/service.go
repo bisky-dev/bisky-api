@@ -71,3 +71,42 @@ func (s *Service) DeleteShow(ctx context.Context, showID string) error {
 	_, err := s.q.DeleteShow(ctx, showID)
 	return err
 }
+
+func (s *Service) ListWorkerData(ctx context.Context) ([]workerDataResponse, error) {
+	shows, err := s.q.ListShows(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	response := make([]workerDataResponse, 0, len(shows))
+	for _, item := range shows {
+		externalID, err := unmarshalExternalID(item.ExternalIds)
+		if err != nil {
+			return nil, err
+		}
+
+		episodes, err := s.q.ListEpisodesByShowID(ctx, item.InternalShowID)
+		if err != nil {
+			return nil, err
+		}
+
+		mappedEpisodes := make([]workerEpisode, 0, len(episodes))
+		for _, ep := range episodes {
+			mappedEpisodes = append(mappedEpisodes, workerEpisode{
+				EpisodeNumber: ep.EpisodeNumber,
+				AirDate:       ep.AirDate,
+			})
+		}
+
+		response = append(response, workerDataResponse{
+			InternalShowID: item.InternalShowID,
+			Show: workerShowResponse{
+				ExternalID: externalID,
+				AltTitles:  normalizeAltTitles(item.AltTitles),
+			},
+			Episodes: mappedEpisodes,
+		})
+	}
+
+	return response, nil
+}
