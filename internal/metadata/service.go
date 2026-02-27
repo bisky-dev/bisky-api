@@ -6,6 +6,7 @@ import (
 
 	jobshow "github.com/keithics/devops-dashboard/api/internal/job/show"
 	worker "github.com/keithics/devops-dashboard/api/internal/metadata/provider"
+	normalizeutil "github.com/keithics/devops-dashboard/api/internal/utils/normalize"
 )
 
 func NewService(workerService *worker.Service, jobShowService *jobshow.Service) *Service {
@@ -20,7 +21,11 @@ func NewHandler(svc *Service) *Handler {
 }
 
 func (s *Service) Search(ctx context.Context, provider worker.ProviderName, query string, opts worker.SearchOpts) ([]worker.SearchHit, error) {
-	return s.worker.Search(ctx, provider, query, opts)
+	items, err := s.worker.Search(ctx, provider, query, opts)
+	if err != nil {
+		return nil, err
+	}
+	return filterTitleContains(query, items), nil
 }
 
 func (s *Service) GetShow(ctx context.Context, provider worker.ProviderName, externalID string) (worker.Show, error) {
@@ -97,4 +102,35 @@ func providerFromExternalID(externalID string) (worker.ProviderName, error) {
 	default:
 		return "", errExternalIDMustBePrefixed
 	}
+}
+
+func filterTitleContains(query string, items []worker.SearchHit) []worker.SearchHit {
+	normalizedQuery := normalizeutil.LowerString(query)
+	if normalizedQuery == "" {
+		return []worker.SearchHit{}
+	}
+
+	filtered := make([]worker.SearchHit, 0, len(items))
+	for _, item := range items {
+		if !hasTitleContainsMatch(item, normalizedQuery) {
+			continue
+		}
+		filtered = append(filtered, item)
+	}
+	return filtered
+}
+
+func hasTitleContainsMatch(item worker.SearchHit, normalizedQuery string) bool {
+	if strings.Contains(normalizeutil.LowerString(item.TitlePreferred), normalizedQuery) {
+		return true
+	}
+	if item.TitleOriginal != nil && strings.Contains(normalizeutil.LowerString(*item.TitleOriginal), normalizedQuery) {
+		return true
+	}
+	for _, altTitle := range item.AltTitles {
+		if strings.Contains(normalizeutil.LowerString(altTitle), normalizedQuery) {
+			return true
+		}
+	}
+	return false
 }
