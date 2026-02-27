@@ -1,6 +1,8 @@
 package show
 
-import "strings"
+import (
+	normalizeutil "github.com/keithics/devops-dashboard/api/internal/utils/normalize"
+)
 
 const (
 	StatusOngoing  = "ongoing"
@@ -8,7 +10,7 @@ const (
 )
 
 func NormalizeStatus(value string) string {
-	normalized := strings.ToLower(strings.TrimSpace(value))
+	normalized := normalizeutil.LowerString(value)
 
 	switch normalized {
 	case StatusOngoing:

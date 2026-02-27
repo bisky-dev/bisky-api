@@ -1,8 +1,6 @@
 package auth
 
 import (
-	"strings"
-
 	"github.com/keithics/devops-dashboard/api/internal/httpx"
 )
 
@@ -10,10 +8,6 @@ const (
 	emailValidationRule    = "required,email,max=254"
 	passwordValidationRule = "required,min=8,max=128"
 )
-
-func normalizeEmail(email string) string {
-	return strings.ToLower(strings.TrimSpace(email))
-}
 
 func validateRegisterRequest(req registerRequest) error {
 	if err := validateEmail(req.Email); err != nil {

@@ -8,6 +8,7 @@ import (
 	"github.com/keithics/devops-dashboard/api/internal/httperr"
 	"github.com/keithics/devops-dashboard/api/internal/httpx"
 	worker "github.com/keithics/devops-dashboard/api/internal/metadata/provider"
+	normalizeutil "github.com/keithics/devops-dashboard/api/internal/utils/normalize"
 )
 
 func parseProvider(raw string) (worker.ProviderName, error) {
@@ -92,17 +93,17 @@ func getEpisodesInput(c *gin.Context) (worker.ProviderName, string, worker.ListE
 }
 
 func normalizeAddShowRequest(req *AddShowRequest) {
-	req.ExternalID = strings.TrimSpace(req.ExternalID)
-	req.TitlePreferred = strings.TrimSpace(req.TitlePreferred)
-	req.TitleOriginal = httpx.TrimmedOrNil(req.TitleOriginal)
-	req.Type = strings.ToLower(strings.TrimSpace(req.Type))
-	req.Status = strings.ToLower(strings.TrimSpace(req.Status))
-	req.Synopsis = httpx.TrimmedOrNil(req.Synopsis)
-	req.StartDate = httpx.TrimmedOrNil(req.StartDate)
-	req.EndDate = httpx.TrimmedOrNil(req.EndDate)
-	req.PosterUrl = httpx.TrimmedOrNil(req.PosterUrl)
-	req.BannerUrl = httpx.TrimmedOrNil(req.BannerUrl)
-	req.AltTitles = normalizeAltTitles(req.AltTitles)
+	req.ExternalID = normalizeutil.String(req.ExternalID)
+	req.TitlePreferred = normalizeutil.String(req.TitlePreferred)
+	req.TitleOriginal = normalizeutil.StringPtr(req.TitleOriginal)
+	req.Type = normalizeutil.LowerString(req.Type)
+	req.Status = normalizeutil.LowerString(req.Status)
+	req.Synopsis = normalizeutil.StringPtr(req.Synopsis)
+	req.StartDate = normalizeutil.StringPtr(req.StartDate)
+	req.EndDate = normalizeutil.StringPtr(req.EndDate)
+	req.PosterUrl = normalizeutil.StringPtr(req.PosterUrl)
+	req.BannerUrl = normalizeutil.StringPtr(req.BannerUrl)
+	req.AltTitles = normalizeutil.Strings(req.AltTitles)
 }
 
 func validateAddShowRequest(req AddShowRequest) error {
@@ -150,22 +151,6 @@ func validatePrefixedExternalID(externalID string) error {
 	default:
 		return errExternalIDMustBePrefixed
 	}
-}
-
-func normalizeAltTitles(values []string) []string {
-	if len(values) == 0 {
-		return []string{}
-	}
-
-	normalized := make([]string, 0, len(values))
-	for _, value := range values {
-		trimmed := strings.TrimSpace(value)
-		if trimmed == "" {
-			continue
-		}
-		normalized = append(normalized, trimmed)
-	}
-	return normalized
 }
 
 func validateOptionalInt64(value *int64, rule string, message string) error {

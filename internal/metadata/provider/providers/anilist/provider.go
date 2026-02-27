@@ -13,6 +13,7 @@ import (
 
 	"github.com/keithics/devops-dashboard/api/internal/metadata/provider"
 	showmodel "github.com/keithics/devops-dashboard/api/internal/show"
+	normalizeutil "github.com/keithics/devops-dashboard/api/internal/utils/normalize"
 )
 
 const (
@@ -94,8 +95,8 @@ func (p *Provider) Search(ctx context.Context, query string, opts metadata.Searc
 		Query: searchQuery,
 		Variables: map[string]any{
 			"query":   query,
-			"page":    normalizePage(opts.Page),
-			"perPage": normalizeLimit(opts.Limit),
+			"page":    normalizeutil.Page(opts.Page, defaultPage),
+			"perPage": normalizeutil.Limit(opts.Limit, defaultPageSize, maxPageSize),
 		},
 	}
 
@@ -108,8 +109,8 @@ func (p *Provider) Search(ctx context.Context, query string, opts metadata.Searc
 	for _, media := range response.Data.Page.Media {
 		titlePreferred, titleOriginal := pickTitles(media.Title)
 		typeValue := mapAniListType(media.Type)
-		bannerURL := normalizeStringPtr(media.BannerImage)
-		synopsis := normalizeStringPtr(media.Description)
+		bannerURL := normalizeutil.StringPtr(media.BannerImage)
+		synopsis := normalizeutil.StringPtr(media.Description)
 		_ = normalizeAverageScore(media.AverageScore)
 
 		hits = append(hits, metadata.SearchHit{
@@ -154,9 +155,9 @@ func (p *Provider) GetShow(ctx context.Context, externalID string) (metadata.Sho
 	titlePreferred, titleOriginal := pickTitles(response.Data.Media.Title)
 	startDate := normalizeAniListDate(response.Data.Media.StartDate)
 	endDate := normalizeAniListDate(response.Data.Media.EndDate)
-	synopsis := normalizeStringPtr(response.Data.Media.Description)
-	posterURL := normalizeStringPtr(response.Data.Media.CoverImage.Large)
-	bannerURL := normalizeStringPtr(response.Data.Media.BannerImage)
+	synopsis := normalizeutil.StringPtr(response.Data.Media.Description)
+	posterURL := normalizeutil.StringPtr(response.Data.Media.CoverImage.Large)
+	bannerURL := normalizeutil.StringPtr(response.Data.Media.BannerImage)
 
 	return metadata.Show{
 		Show: showmodel.Show{
@@ -185,8 +186,8 @@ func (p *Provider) ListEpisodes(ctx context.Context, externalID string, opts met
 		Query: episodesQuery,
 		Variables: map[string]any{
 			"mediaId": mediaID,
-			"page":    normalizePage(opts.Page),
-			"perPage": normalizeLimit(opts.Limit),
+			"page":    normalizeutil.Page(opts.Page, defaultPage),
+			"perPage": normalizeutil.Limit(opts.Limit, defaultPageSize, maxPageSize),
 		},
 	}
 
@@ -289,23 +290,6 @@ func formatExternalID(value string) string {
 	return idPrefix + value
 }
 
-func normalizePage(value int) int {
-	if value < 1 {
-		return defaultPage
-	}
-	return value
-}
-
-func normalizeLimit(value int) int {
-	if value < 1 {
-		return defaultPageSize
-	}
-	if value > maxPageSize {
-		return maxPageSize
-	}
-	return value
-}
-
 func pickTitles(title anilistMediaTitle) (string, *string) {
 	preferred := firstNonEmptyPtr(title.English, title.Romaji, title.Native)
 	original := firstNonEmptyPtr(title.Native, title.Romaji, title.English)
@@ -317,28 +301,17 @@ func pickTitles(title anilistMediaTitle) (string, *string) {
 	if preferredValue == "" {
 		preferredValue = "Untitled"
 	}
-	return preferredValue, normalizeStringPtr(original)
+	return preferredValue, normalizeutil.StringPtr(original)
 }
 
 func firstNonEmptyPtr(values ...*string) *string {
 	for _, value := range values {
-		normalized := normalizeStringPtr(value)
+		normalized := normalizeutil.StringPtr(value)
 		if normalized != nil {
 			return normalized
 		}
 	}
 	return nil
-}
-
-func normalizeStringPtr(value *string) *string {
-	if value == nil {
-		return nil
-	}
-	trimmed := strings.TrimSpace(*value)
-	if trimmed == "" {
-		return nil
-	}
-	return &trimmed
 }
 
 func normalizeAniListDate(value anilistDate) *string {

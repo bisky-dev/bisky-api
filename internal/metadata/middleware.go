@@ -1,11 +1,10 @@
 package metadata
 
 import (
-	"strings"
-
 	"github.com/gin-gonic/gin"
 	"github.com/keithics/devops-dashboard/api/internal/httpx"
 	worker "github.com/keithics/devops-dashboard/api/internal/metadata/provider"
+	normalizeutil "github.com/keithics/devops-dashboard/api/internal/utils/normalize"
 )
 
 func (h *Handler) BindSearch() gin.HandlerFunc {
@@ -15,7 +14,7 @@ func (h *Handler) BindSearch() gin.HandlerFunc {
 			return
 		}
 
-		query := strings.TrimSpace(c.Query("query"))
+		query := normalizeutil.String(c.Query("query"))
 		if httpx.AbortIfErr(c, validateQuery(query)) {
 			return
 		}
@@ -56,7 +55,7 @@ func (h *Handler) BindExternalID() gin.HandlerFunc {
 			return
 		}
 
-		externalID := strings.TrimSpace(c.Param("externalId"))
+		externalID := normalizeutil.String(c.Param("externalId"))
 		if httpx.AbortIfErr(c, validateExternalID(externalID)) {
 			return
 		}

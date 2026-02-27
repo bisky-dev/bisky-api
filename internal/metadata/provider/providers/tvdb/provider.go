@@ -18,6 +18,7 @@ import (
 
 	"github.com/keithics/devops-dashboard/api/internal/metadata/provider"
 	showmodel "github.com/keithics/devops-dashboard/api/internal/show"
+	normalizeutil "github.com/keithics/devops-dashboard/api/internal/utils/normalize"
 )
 
 const (
@@ -66,9 +67,9 @@ func (p *Provider) Search(ctx context.Context, query string, opts metadata.Searc
 			titlePreferred = "Untitled"
 		}
 
-		titleOriginal := stringPtr(firstString(item, "name"))
-		bannerURL := stringPtr(firstString(item, "image_url", "thumbnail", "image", "banner"))
-		synopsis := stringPtr(firstString(item, "overview_translated", "overview", "overviews", "summary", "plot"))
+		titleOriginal := normalizeutil.StringValuePtr(firstString(item, "name"))
+		bannerURL := normalizeutil.StringValuePtr(firstString(item, "image_url", "thumbnail", "image", "banner"))
+		synopsis := normalizeutil.StringValuePtr(firstString(item, "overview_translated", "overview", "overviews", "summary", "plot"))
 		_ = floatPtr(firstFloat64(item, "score"))
 
 		hits = append(hits, metadata.SearchHit{
@@ -90,7 +91,7 @@ func (p *Provider) Search(ctx context.Context, query string, opts metadata.Searc
 
 func (p *Provider) searchItems(ctx context.Context, query string, opts metadata.SearchOpts, includeType bool) ([]map[string]any, error) {
 	// TODO cleanup: remove temporary debug logging and search fallback once TVDB response handling is fully stabilized.
-	page := normalizePage(opts.Page)
+	page := normalizeutil.Page(opts.Page, defaultPage)
 	tvdbPage := toTVDBPage(page)
 
 	params := url.Values{}
@@ -99,7 +100,8 @@ func (p *Provider) searchItems(ctx context.Context, query string, opts metadata.
 		params.Set("type", "series")
 	}
 	params.Set("page", strconv.Itoa(tvdbPage))
-	params.Set("limit", strconv.Itoa(normalizeLimit(opts.Limit)))
+	limit := normalizeutil.Limit(opts.Limit, defaultPageSize, maxPageSize)
+	params.Set("limit", strconv.Itoa(limit))
 
 	body, err := p.doRequest(ctx, http.MethodGet, "/search?"+params.Encode(), nil)
 	if err != nil {
@@ -107,7 +109,7 @@ func (p *Provider) searchItems(ctx context.Context, query string, opts metadata.
 	}
 
 	if p.debug {
-		log.Printf("[tvdb] search includeType=%v query=%q page=%d tvdbPage=%d limit=%d raw=%s", includeType, query, page, tvdbPage, normalizeLimit(opts.Limit), truncateForLog(body, 1200))
+		log.Printf("[tvdb] search includeType=%v query=%q page=%d tvdbPage=%d limit=%d raw=%s", includeType, query, page, tvdbPage, limit, truncateForLog(body, 1200))
 	}
 	items, err := decodeArrayData(body)
 	if err != nil {
@@ -140,13 +142,13 @@ func (p *Provider) GetShow(ctx context.Context, externalID string) (metadata.Sho
 		titlePreferred = "Untitled"
 	}
 
-	posterURL := stringPtr(firstString(item, "image", "image_url"))
+	posterURL := normalizeutil.StringValuePtr(firstString(item, "image", "image_url"))
 	bannerURL := posterURL
 	if artworks := mapSlice(item, "artworks"); len(artworks) > 0 {
 		for _, artwork := range artworks {
 			typ := strings.ToLower(firstString(artwork, "type", "typeName"))
 			if strings.Contains(typ, "banner") {
-				bannerURL = stringPtr(firstString(artwork, "image", "image_url"))
+				bannerURL = normalizeutil.StringValuePtr(firstString(artwork, "image", "image_url"))
 				break
 			}
 		}
@@ -156,13 +158,13 @@ func (p *Provider) GetShow(ctx context.Context, externalID string) (metadata.Sho
 		Show: showmodel.Show{
 			ExternalID:     formatExternalID(id),
 			TitlePreferred: titlePreferred,
-			TitleOriginal:  stringPtr(firstString(item, "name")),
-			AltTitles:      extractTVDBAltTitles(item, titlePreferred, stringPtr(firstString(item, "name"))),
+			TitleOriginal:  normalizeutil.StringValuePtr(firstString(item, "name")),
+			AltTitles:      extractTVDBAltTitles(item, titlePreferred, normalizeutil.StringValuePtr(firstString(item, "name"))),
 			Type:           mapShowType(firstString(item, "type", "primary_type")),
 			Status:         showmodel.NormalizeStatusOrDefault(firstString(item, "status", "statusName"), showmodel.StatusOngoing),
-			Synopsis:       stringPtr(firstString(item, "overview_translated", "overview", "overviews")),
-			StartDate:      stringPtr(firstString(item, "firstAired", "first_air_time")),
-			EndDate:        stringPtr(firstString(item, "lastAired")),
+			Synopsis:       normalizeutil.StringValuePtr(firstString(item, "overview_translated", "overview", "overviews")),
+			StartDate:      normalizeutil.StringValuePtr(firstString(item, "firstAired", "first_air_time")),
+			EndDate:        normalizeutil.StringValuePtr(firstString(item, "lastAired")),
 			PosterUrl:      posterURL,
 			BannerUrl:      bannerURL,
 		},
@@ -175,12 +177,12 @@ func (p *Provider) ListEpisodes(ctx context.Context, externalID string, opts met
 		return nil, err
 	}
 
-	page := normalizePage(opts.Page)
+	page := normalizeutil.Page(opts.Page, defaultPage)
 	tvdbPage := toTVDBPage(page)
 
 	params := url.Values{}
 	params.Set("page", strconv.Itoa(tvdbPage))
-	params.Set("limit", strconv.Itoa(normalizeLimit(opts.Limit)))
+	params.Set("limit", strconv.Itoa(normalizeutil.Limit(opts.Limit, defaultPageSize, maxPageSize)))
 	body, err := p.doRequest(ctx, http.MethodGet, "/series/"+id+"/episodes/default?"+params.Encode(), nil)
 	if err != nil {
 		return nil, err
@@ -220,7 +222,7 @@ func (p *Provider) ListEpisodes(ctx context.Context, externalID string, opts met
 			SeasonNumber:   seasonNumber,
 			EpisodeNumber:  episodeNumber,
 			Title:          title,
-			AirDate:        stringPtr(firstString(item, "aired", "firstAired")),
+			AirDate:        normalizeutil.StringValuePtr(firstString(item, "aired", "firstAired")),
 			RuntimeMinutes: runtime,
 		})
 	}
@@ -598,37 +600,12 @@ func int64Ptr(value int) *int64 {
 	return &converted
 }
 
-func stringPtr(value string) *string {
-	value = strings.TrimSpace(value)
-	if value == "" {
-		return nil
-	}
-	return &value
-}
-
-func normalizePage(value int) int {
-	if value < 1 {
-		return defaultPage
-	}
-	return value
-}
-
 func toTVDBPage(value int) int {
-	page := normalizePage(value)
+	page := normalizeutil.Page(value, defaultPage)
 	if page <= 1 {
 		return 0
 	}
 	return page - 1
-}
-
-func normalizeLimit(value int) int {
-	if value < 1 {
-		return defaultPageSize
-	}
-	if value > maxPageSize {
-		return maxPageSize
-	}
-	return value
 }
 
 func getEnv(key, fallback string) string {

@@ -3,6 +3,7 @@ package auth
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/keithics/devops-dashboard/api/internal/httpx"
+	normalizeutil "github.com/keithics/devops-dashboard/api/internal/utils/normalize"
 )
 
 func (h *Handler) BindRegister() gin.HandlerFunc {
@@ -12,7 +13,7 @@ func (h *Handler) BindRegister() gin.HandlerFunc {
 			return
 		}
 
-		req.Email = normalizeEmail(req.Email)
+		req.Email = normalizeutil.LowerString(req.Email)
 		if httpx.AbortIfErr(c, validateRegisterRequest(req)) {
 			return
 		}
@@ -29,7 +30,7 @@ func (h *Handler) BindLogin() gin.HandlerFunc {
 			return
 		}
 
-		req.Email = normalizeEmail(req.Email)
+		req.Email = normalizeutil.LowerString(req.Email)
 		if httpx.AbortIfErr(c, validateLoginRequest(req)) {
 			return
 		}
@@ -46,7 +47,7 @@ func (h *Handler) BindForgotPassword() gin.HandlerFunc {
 			return
 		}
 
-		req.Email = normalizeEmail(req.Email)
+		req.Email = normalizeutil.LowerString(req.Email)
 		if httpx.AbortIfErr(c, validateForgotPasswordRequest(req)) {
 			return
 		}

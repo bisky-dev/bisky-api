@@ -6,6 +6,7 @@ import (
 
 	"github.com/keithics/devops-dashboard/api/internal/db/sqlc"
 	"github.com/keithics/devops-dashboard/api/internal/httpx"
+	normalizeutil "github.com/keithics/devops-dashboard/api/internal/utils/normalize"
 )
 
 func normalizeCreateShowRequest(req *createShowRequest) {
@@ -47,31 +48,15 @@ func normalizeShowFields(
 	bannerURL **string,
 	altTitles *[]string,
 ) {
-	*externalID = strings.TrimSpace(*externalID)
-	*titlePreferred = strings.TrimSpace(*titlePreferred)
-	*titleOriginal = httpx.TrimmedOrNil(*titleOriginal)
-	*synopsis = httpx.TrimmedOrNil(*synopsis)
-	*startDate = httpx.TrimmedOrNil(*startDate)
-	*endDate = httpx.TrimmedOrNil(*endDate)
-	*posterURL = httpx.TrimmedOrNil(*posterURL)
-	*bannerURL = httpx.TrimmedOrNil(*bannerURL)
-	*altTitles = normalizeAltTitles(*altTitles)
-}
-
-func normalizeAltTitles(values []string) []string {
-	if len(values) == 0 {
-		return []string{}
-	}
-
-	normalized := make([]string, 0, len(values))
-	for _, value := range values {
-		trimmed := strings.TrimSpace(value)
-		if trimmed == "" {
-			continue
-		}
-		normalized = append(normalized, trimmed)
-	}
-	return normalized
+	*externalID = normalizeutil.String(*externalID)
+	*titlePreferred = normalizeutil.String(*titlePreferred)
+	*titleOriginal = normalizeutil.StringPtr(*titleOriginal)
+	*synopsis = normalizeutil.StringPtr(*synopsis)
+	*startDate = normalizeutil.StringPtr(*startDate)
+	*endDate = normalizeutil.StringPtr(*endDate)
+	*posterURL = normalizeutil.StringPtr(*posterURL)
+	*bannerURL = normalizeutil.StringPtr(*bannerURL)
+	*altTitles = normalizeutil.Strings(*altTitles)
 }
 
 func validateCreateShowRequest(req createShowRequest) error {
@@ -184,7 +169,7 @@ func toShowResponse(show sqlc.Show) (showResponse, error) {
 			ExternalID:     externalID,
 			TitlePreferred: show.TitlePreferred,
 			TitleOriginal:  show.TitleOriginal,
-			AltTitles:      normalizeAltTitles(show.AltTitles),
+			AltTitles:      normalizeutil.Strings(show.AltTitles),
 			Type:           show.Type,
 			Status:         show.Status,
 			Synopsis:       show.Synopsis,

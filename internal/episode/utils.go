@@ -3,10 +3,10 @@ package episode
 import (
 	"encoding/json"
 	"errors"
-	"strings"
 
 	"github.com/keithics/devops-dashboard/api/internal/db/sqlc"
 	"github.com/keithics/devops-dashboard/api/internal/httpx"
+	normalizeutil "github.com/keithics/devops-dashboard/api/internal/utils/normalize"
 )
 
 func normalizeCreateEpisodeRequest(req *createEpisodeRequest) {
@@ -26,9 +26,9 @@ func normalizeUpdateEpisodeRequest(req *updateEpisodeRequest) {
 }
 
 func normalizeEpisodeFields(showID *string, title *string, airDate **string) {
-	*showID = strings.TrimSpace(*showID)
-	*title = strings.TrimSpace(*title)
-	*airDate = httpx.TrimmedOrNil(*airDate)
+	*showID = normalizeutil.String(*showID)
+	*title = normalizeutil.String(*title)
+	*airDate = normalizeutil.StringPtr(*airDate)
 }
 
 func validateCreateEpisodeRequest(req createEpisodeRequest) error {

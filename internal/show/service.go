@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/keithics/devops-dashboard/api/internal/db/sqlc"
+	normalizeutil "github.com/keithics/devops-dashboard/api/internal/utils/normalize"
 )
 
 func NewHandler(q *sqlc.Queries) *Handler {
@@ -102,7 +103,7 @@ func (s *Service) ListWorkerData(ctx context.Context) ([]workerDataResponse, err
 			InternalShowID: item.InternalShowID,
 			Show: workerShowResponse{
 				ExternalID: externalID,
-				AltTitles:  normalizeAltTitles(item.AltTitles),
+				AltTitles:  normalizeutil.Strings(item.AltTitles),
 			},
 			Episodes: mappedEpisodes,
 		})
