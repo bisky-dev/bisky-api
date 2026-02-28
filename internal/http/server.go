@@ -1,6 +1,7 @@
 package http
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -10,6 +11,8 @@ import (
 	"github.com/keithics/devops-dashboard/api/internal/config"
 	"github.com/keithics/devops-dashboard/api/internal/db/sqlc"
 	"github.com/keithics/devops-dashboard/api/internal/episode"
+	"github.com/keithics/devops-dashboard/api/internal/hooks"
+	"github.com/keithics/devops-dashboard/api/internal/hooksettings"
 	"github.com/keithics/devops-dashboard/api/internal/httperr"
 	"github.com/keithics/devops-dashboard/api/internal/metadata"
 	workermeta "github.com/keithics/devops-dashboard/api/internal/metadata/provider"
@@ -29,7 +32,14 @@ func NewServer(cfg config.Config, pool *pgxpool.Pool) *Server {
 
 	q := sqlc.New(pool)
 	authHandler := auth.NewHandler(q, cfg.TokenEncryptionKey)
-	episodeHandler := episode.NewHandler(q)
+	var hookDispatcher hooks.Dispatcher = hooks.NoopDispatcher{}
+	httpHookDispatcher, err := hooks.NewHTTPDispatcher(pool)
+	if err != nil {
+		log.Printf("failed to initialize hook dispatcher, using noop: %v", err)
+	} else {
+		hookDispatcher = httpHookDispatcher
+	}
+	episodeHandler := episode.NewHandlerWithHooks(q, hookDispatcher)
 	anilistProvider := anilist.New()
 	metadataRegistry := workermeta.NewRegistry(map[workermeta.ProviderName]workermeta.Provider{
 		workermeta.ProviderAniDB:   anilistProvider,
@@ -37,7 +47,11 @@ func NewServer(cfg config.Config, pool *pgxpool.Pool) *Server {
 		workermeta.ProviderTVDB:    tvdb.New(),
 	})
 	metadataHandler := metadata.NewHandler(metadata.NewService(workermeta.NewService(metadataRegistry)))
-	showHandler := show.NewHandler(q)
+	showHandler := show.NewHandlerWithHooks(q, hookDispatcher)
+	hookSettingsHandler, err := hooksettings.NewHandler(pool)
+	if err != nil {
+		log.Printf("failed to initialize hook settings handler: %v", err)
+	}
 
 	r.GET("/health", healthHandler)
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
@@ -46,6 +60,9 @@ func NewServer(cfg config.Config, pool *pgxpool.Pool) *Server {
 	episode.RegisterRoutes(r, episodeHandler)
 	metadata.RegisterRoutes(r, metadataHandler)
 	show.RegisterRoutes(r, showHandler)
+	if hookSettingsHandler != nil {
+		hooksettings.RegisterRoutes(r, hookSettingsHandler)
+	}
 
 	return &Server{
 		cfg:    cfg,
