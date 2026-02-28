@@ -2,16 +2,13 @@ package auth
 
 import (
 	"context"
-	"crypto/hmac"
 	"crypto/rand"
-	"crypto/sha256"
 	"encoding/base64"
-	"encoding/json"
 	"errors"
 	"log"
-	"strconv"
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5"
 	"github.com/keithics/devops-dashboard/api/internal/db/sqlc"
 	"golang.org/x/crypto/bcrypt"
@@ -79,23 +76,20 @@ func (s *Service) ForgotPassword(ctx context.Context, req forgotPasswordRequest)
 }
 
 func (s *Service) generateAccessToken(userID string) (string, int64, error) {
-	expiresAt := time.Now().Add(s.tokenTTL).Unix()
-	payloadBytes, err := json.Marshal(map[string]string{
-		"sub": userID,
-		"exp": strconv.FormatInt(expiresAt, 10),
-	})
+	now := time.Now()
+	claims := jwt.RegisteredClaims{
+		Subject:   userID,
+		ExpiresAt: jwt.NewNumericDate(now.Add(s.tokenTTL)),
+		IssuedAt:  jwt.NewNumericDate(now),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	signedToken, err := token.SignedString(s.signingKey)
 	if err != nil {
 		return "", 0, err
 	}
 
-	encodedPayload := base64.RawURLEncoding.EncodeToString(payloadBytes)
-	mac := hmac.New(sha256.New, s.signingKey)
-	if _, err := mac.Write([]byte(encodedPayload)); err != nil {
-		return "", 0, err
-	}
-	signature := base64.RawURLEncoding.EncodeToString(mac.Sum(nil))
-
-	return encodedPayload + "." + signature, int64(s.tokenTTL.Seconds()), nil
+	return signedToken, int64(s.tokenTTL.Seconds()), nil
 }
 
 func generateResetToken() (string, error) {

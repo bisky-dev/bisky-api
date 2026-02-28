@@ -44,6 +44,7 @@ func NewServer(cfg config.Config, pool *pgxpool.Pool) *Server {
 	r.GET("/health", healthHandler)
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	auth.RegisterRoutes(r, authHandler)
+	r.Use(authHandler.RequireAuth())
 	episode.RegisterRoutes(r, episodeHandler)
 	metadata.RegisterRoutes(r, metadataHandler)
 	show.RegisterRoutes(r, showHandler)

@@ -11,6 +11,7 @@ const (
 	ctxRegisterRequestKey       = "auth.register.request"
 	ctxLoginRequestKey          = "auth.login.request"
 	ctxForgotPasswordRequestKey = "auth.forgot-password.request"
+	ctxUserIDKey                = "auth.user.id"
 )
 
 var errInvalidCredentials = errors.New("invalid credentials")

@@ -1,6 +1,9 @@
 package normalize
 
-import "strings"
+import (
+	"strconv"
+	"strings"
+)
 
 func String(value string) string {
 	return strings.TrimSpace(value)
@@ -59,4 +62,17 @@ func Limit(value int, fallback int, max int) int {
 		return max
 	}
 	return value
+}
+
+func ParseBool(raw string, fallback bool) bool {
+	if strings.TrimSpace(raw) == "" {
+		return fallback
+	}
+
+	parsed, err := strconv.ParseBool(raw)
+	if err != nil {
+		return fallback
+	}
+
+	return parsed
 }

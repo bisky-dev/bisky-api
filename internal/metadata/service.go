@@ -25,6 +25,9 @@ func (s *Service) Search(ctx context.Context, provider worker.ProviderName, quer
 	if err != nil {
 		return nil, err
 	}
+	if opts.Strict {
+		return filterTitleExact(query, items), nil
+	}
 	return filterTitleContains(query, items), nil
 }
 
@@ -104,6 +107,22 @@ func providerFromExternalID(externalID string) (worker.ProviderName, error) {
 	}
 }
 
+func filterTitleExact(query string, items []worker.SearchHit) []worker.SearchHit {
+	normalizedQuery := normalizeutil.LowerString(query)
+	if normalizedQuery == "" {
+		return []worker.SearchHit{}
+	}
+
+	filtered := make([]worker.SearchHit, 0, len(items))
+	for _, item := range items {
+		if !hasTitleExactMatch(item, normalizedQuery) {
+			continue
+		}
+		filtered = append(filtered, item)
+	}
+	return filtered
+}
+
 func filterTitleContains(query string, items []worker.SearchHit) []worker.SearchHit {
 	normalizedQuery := normalizeutil.LowerString(query)
 	if normalizedQuery == "" {
@@ -118,6 +137,21 @@ func filterTitleContains(query string, items []worker.SearchHit) []worker.Search
 		filtered = append(filtered, item)
 	}
 	return filtered
+}
+
+func hasTitleExactMatch(item worker.SearchHit, normalizedQuery string) bool {
+	if normalizeutil.LowerString(item.TitlePreferred) == normalizedQuery {
+		return true
+	}
+	if item.TitleOriginal != nil && normalizeutil.LowerString(*item.TitleOriginal) == normalizedQuery {
+		return true
+	}
+	for _, altTitle := range item.AltTitles {
+		if normalizeutil.LowerString(altTitle) == normalizedQuery {
+			return true
+		}
+	}
+	return false
 }
 
 func hasTitleContainsMatch(item worker.SearchHit, normalizedQuery string) bool {

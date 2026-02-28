@@ -18,6 +18,7 @@ import (
 //	@Param			type	query		string	false	"Provider type: anidb|tvdb (default anidb)"
 //	@Param			page	query		int		false	"Page"
 //	@Param			limit	query		int		false	"Limit"
+//	@Param			strict	query		bool	false	"Strict exact title match (default true)"
 //	@Success		200		{array}		SearchHitResponse
 //	@Failure		400		{object}	httperr.APIErrorResponse
 //	@Failure		500		{object}	httperr.APIErrorResponse
