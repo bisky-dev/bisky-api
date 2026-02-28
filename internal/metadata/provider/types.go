@@ -26,13 +26,9 @@ type ListEpisodesOpts struct {
 	SeasonNumber *int64
 }
 
-type SearchHit struct {
-	showmodel.Show
-}
+type SearchHit = showmodel.Show
 
-type Show struct {
-	showmodel.Show
-}
+type Show = showmodel.Show
 
 type Episode struct {
 	Provider       ProviderName `json:"provider"`

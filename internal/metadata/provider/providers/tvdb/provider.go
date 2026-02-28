@@ -75,16 +75,14 @@ func (p *Provider) Search(ctx context.Context, query string, opts metadata.Searc
 		_ = floatPtr(firstFloat64(item, "score"))
 
 		hits = append(hits, metadata.SearchHit{
-			Show: showmodel.Show{
-				ExternalID:     formatExternalID(normalizeSeriesID(firstString(item, "id", "tvdb_id"))),
-				TitlePreferred: titlePreferred,
-				TitleOriginal:  titleOriginal,
-				AltTitles:      extractTVDBAltTitles(item, titlePreferred, titleOriginal),
-				Type:           mapShowType(firstString(item, "primary_type", "type")),
-				Status:         showmodel.NormalizeStatusOrDefault(firstString(item, "status", "statusName"), showmodel.StatusOngoing),
-				Synopsis:       synopsis,
-				BannerUrl:      bannerURL,
-			},
+			ExternalID:     formatExternalID(normalizeSeriesID(firstString(item, "id", "tvdb_id"))),
+			TitlePreferred: titlePreferred,
+			TitleOriginal:  titleOriginal,
+			AltTitles:      extractTVDBAltTitles(item, titlePreferred, titleOriginal),
+			Type:           mapShowType(firstString(item, "primary_type", "type")),
+			Status:         showmodel.NormalizeStatusOrDefault(firstString(item, "status", "statusName"), showmodel.StatusOngoing),
+			Synopsis:       synopsis,
+			BannerUrl:      bannerURL,
 		})
 	}
 
@@ -159,19 +157,17 @@ func (p *Provider) GetShow(ctx context.Context, externalID string) (metadata.Sho
 	}
 
 	return metadata.Show{
-		Show: showmodel.Show{
-			ExternalID:     formatExternalID(id),
-			TitlePreferred: titlePreferred,
-			TitleOriginal:  normalizeutil.StringValuePtr(firstString(item, "name")),
-			AltTitles:      extractTVDBAltTitles(item, titlePreferred, normalizeutil.StringValuePtr(firstString(item, "name"))),
-			Type:           mapShowType(firstString(item, "type", "primary_type")),
-			Status:         showmodel.NormalizeStatusOrDefault(firstString(item, "status", "statusName"), showmodel.StatusOngoing),
-			Synopsis:       normalizeutil.StringValuePtr(firstString(item, "overview_translated", "overview", "overviews")),
-			StartDate:      normalizeutil.StringValuePtr(firstString(item, "firstAired", "first_air_time")),
-			EndDate:        normalizeutil.StringValuePtr(firstString(item, "lastAired")),
-			PosterUrl:      posterURL,
-			BannerUrl:      bannerURL,
-		},
+		ExternalID:     formatExternalID(id),
+		TitlePreferred: titlePreferred,
+		TitleOriginal:  normalizeutil.StringValuePtr(firstString(item, "name")),
+		AltTitles:      extractTVDBAltTitles(item, titlePreferred, normalizeutil.StringValuePtr(firstString(item, "name"))),
+		Type:           mapShowType(firstString(item, "type", "primary_type")),
+		Status:         showmodel.NormalizeStatusOrDefault(firstString(item, "status", "statusName"), showmodel.StatusOngoing),
+		Synopsis:       normalizeutil.StringValuePtr(firstString(item, "overview_translated", "overview", "overviews")),
+		StartDate:      normalizeutil.StringValuePtr(firstString(item, "firstAired", "first_air_time")),
+		EndDate:        normalizeutil.StringValuePtr(firstString(item, "lastAired")),
+		PosterUrl:      posterURL,
+		BannerUrl:      bannerURL,
 	}, nil
 }
 

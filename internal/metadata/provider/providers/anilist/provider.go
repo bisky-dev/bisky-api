@@ -114,16 +114,14 @@ func (p *Provider) Search(ctx context.Context, query string, opts metadata.Searc
 		_ = normalizeAverageScore(media.AverageScore)
 
 		hits = append(hits, metadata.SearchHit{
-			Show: showmodel.Show{
-				ExternalID:     formatExternalID(strconv.FormatInt(media.ID, 10)),
-				TitlePreferred: titlePreferred,
-				TitleOriginal:  titleOriginal,
-				AltTitles:      buildAniListAltTitles(titlePreferred, titleOriginal, media.Title, media.Synonyms),
-				Type:           typeValue,
-				Status:         showmodel.NormalizeStatusOrDefault(media.Status, showmodel.StatusOngoing),
-				Synopsis:       synopsis,
-				BannerUrl:      bannerURL,
-			},
+			ExternalID:     formatExternalID(strconv.FormatInt(media.ID, 10)),
+			TitlePreferred: titlePreferred,
+			TitleOriginal:  titleOriginal,
+			AltTitles:      buildAniListAltTitles(titlePreferred, titleOriginal, media.Title, media.Synonyms),
+			Type:           typeValue,
+			Status:         showmodel.NormalizeStatusOrDefault(media.Status, showmodel.StatusOngoing),
+			Synopsis:       synopsis,
+			BannerUrl:      bannerURL,
 		})
 	}
 
@@ -160,19 +158,17 @@ func (p *Provider) GetShow(ctx context.Context, externalID string) (metadata.Sho
 	bannerURL := normalizeutil.StringPtr(response.Data.Media.BannerImage)
 
 	return metadata.Show{
-		Show: showmodel.Show{
-			ExternalID:     formatExternalID(strconv.FormatInt(response.Data.Media.ID, 10)),
-			TitlePreferred: titlePreferred,
-			TitleOriginal:  titleOriginal,
-			AltTitles:      buildAniListAltTitles(titlePreferred, titleOriginal, response.Data.Media.Title, response.Data.Media.Synonyms),
-			Synopsis:       synopsis,
-			StartDate:      startDate,
-			EndDate:        endDate,
-			PosterUrl:      posterURL,
-			BannerUrl:      bannerURL,
-			Type:           "anime",
-			Status:         showmodel.NormalizeStatusOrDefault(response.Data.Media.Status, showmodel.StatusOngoing),
-		},
+		ExternalID:     formatExternalID(strconv.FormatInt(response.Data.Media.ID, 10)),
+		TitlePreferred: titlePreferred,
+		TitleOriginal:  titleOriginal,
+		AltTitles:      buildAniListAltTitles(titlePreferred, titleOriginal, response.Data.Media.Title, response.Data.Media.Synonyms),
+		Synopsis:       synopsis,
+		StartDate:      startDate,
+		EndDate:        endDate,
+		PosterUrl:      posterURL,
+		BannerUrl:      bannerURL,
+		Type:           "anime",
+		Status:         showmodel.NormalizeStatusOrDefault(response.Data.Media.Status, showmodel.StatusOngoing),
 	}, nil
 }
 

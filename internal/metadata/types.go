@@ -2,6 +2,7 @@ package metadata
 
 import (
 	worker "github.com/keithics/devops-dashboard/api/internal/metadata/provider"
+	showmodel "github.com/keithics/devops-dashboard/api/internal/show"
 )
 
 const (
@@ -20,37 +21,9 @@ type Service struct {
 	worker *worker.Service
 }
 
-type SearchHitResponse struct {
-	ExternalID     string   `json:"externalId,omitempty"`
-	TitlePreferred string   `json:"titlePreferred"`
-	TitleOriginal  *string  `json:"titleOriginal,omitempty"`
-	AltTitles      []string `json:"altTitles"`
-	Type           string   `json:"type"`
-	Status         string   `json:"status"`
-	Synopsis       *string  `json:"synopsis,omitempty"`
-	StartDate      *string  `json:"startDate,omitempty"`
-	EndDate        *string  `json:"endDate,omitempty"`
-	PosterUrl      *string  `json:"posterUrl,omitempty"`
-	BannerUrl      *string  `json:"bannerUrl,omitempty"`
-	SeasonCount    *int64   `json:"seasonCount,omitempty"`
-	EpisodeCount   *int64   `json:"episodeCount,omitempty"`
-}
+type SearchHitResponse = showmodel.Show
 
-type ShowResponse struct {
-	ExternalID     string   `json:"externalId,omitempty"`
-	TitlePreferred string   `json:"titlePreferred"`
-	TitleOriginal  *string  `json:"titleOriginal,omitempty"`
-	AltTitles      []string `json:"altTitles"`
-	Type           string   `json:"type"`
-	Status         string   `json:"status"`
-	Synopsis       *string  `json:"synopsis,omitempty"`
-	StartDate      *string  `json:"startDate,omitempty"`
-	EndDate        *string  `json:"endDate,omitempty"`
-	PosterUrl      *string  `json:"posterUrl,omitempty"`
-	BannerUrl      *string  `json:"bannerUrl,omitempty"`
-	SeasonCount    *int64   `json:"seasonCount,omitempty"`
-	EpisodeCount   *int64   `json:"episodeCount,omitempty"`
-}
+type ShowResponse = showmodel.Show
 
 type EpisodeResponse struct {
 	Provider       string  `json:"provider"`
