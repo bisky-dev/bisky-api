@@ -4,22 +4,38 @@ import (
 	"context"
 
 	"github.com/keithics/devops-dashboard/api/internal/db/sqlc"
+	"github.com/keithics/devops-dashboard/api/internal/hooks"
 	normalizeutil "github.com/keithics/devops-dashboard/api/internal/utils/normalize"
 )
 
 func NewHandler(q *sqlc.Queries) *Handler {
+	return NewHandlerWithHooks(q, hooks.NoopDispatcher{})
+}
+
+func NewHandlerWithHooks(q *sqlc.Queries, dispatcher hooks.Dispatcher) *Handler {
+	if dispatcher == nil {
+		dispatcher = hooks.NoopDispatcher{}
+	}
+
 	return &Handler{
-		svc: &Service{q: q},
+		svc: &Service{
+			q:     q,
+			hooks: dispatcher,
+		},
 	}
 }
 
 func (s *Service) CreateShow(ctx context.Context, req createShowRequest) (sqlc.Show, error) {
+	if err := s.hooks.DispatchPre(ctx, hooks.EventShowCreatePre, req); err != nil {
+		return sqlc.Show{}, err
+	}
+
 	externalIDs, err := marshalExternalID(req.ExternalID)
 	if err != nil {
 		return sqlc.Show{}, err
 	}
 
-	return s.q.CreateShow(ctx, sqlc.CreateShowParams{
+	created, err := s.q.CreateShow(ctx, sqlc.CreateShowParams{
 		TitlePreferred: req.TitlePreferred,
 		TitleOriginal:  req.TitleOriginal,
 		AltTitles:      req.AltTitles,
@@ -34,6 +50,12 @@ func (s *Service) CreateShow(ctx context.Context, req createShowRequest) (sqlc.S
 		EpisodeCount:   req.EpisodeCount,
 		ExternalIds:    externalIDs,
 	})
+	if err != nil {
+		return sqlc.Show{}, err
+	}
+
+	s.hooks.DispatchPost(ctx, hooks.EventShowCreatePost, created)
+	return created, nil
 }
 
 func (s *Service) ListShows(ctx context.Context) ([]sqlc.Show, error) {
@@ -45,12 +67,19 @@ func (s *Service) GetShowByID(ctx context.Context, showID string) (sqlc.Show, er
 }
 
 func (s *Service) UpdateShow(ctx context.Context, showID string, req updateShowRequest) (sqlc.Show, error) {
+	if err := s.hooks.DispatchPre(ctx, hooks.EventShowUpdatePre, map[string]any{
+		"internalShowId": showID,
+		"request":        req,
+	}); err != nil {
+		return sqlc.Show{}, err
+	}
+
 	externalIDs, err := marshalExternalID(req.ExternalID)
 	if err != nil {
 		return sqlc.Show{}, err
 	}
 
-	return s.q.UpdateShow(ctx, sqlc.UpdateShowParams{
+	updated, err := s.q.UpdateShow(ctx, sqlc.UpdateShowParams{
 		InternalShowID: showID,
 		TitlePreferred: req.TitlePreferred,
 		TitleOriginal:  req.TitleOriginal,
@@ -66,11 +95,30 @@ func (s *Service) UpdateShow(ctx context.Context, showID string, req updateShowR
 		EpisodeCount:   req.EpisodeCount,
 		ExternalIds:    externalIDs,
 	})
+	if err != nil {
+		return sqlc.Show{}, err
+	}
+
+	s.hooks.DispatchPost(ctx, hooks.EventShowUpdatePost, updated)
+	return updated, nil
 }
 
 func (s *Service) DeleteShow(ctx context.Context, showID string) error {
+	if err := s.hooks.DispatchPre(ctx, hooks.EventShowDeletePre, map[string]any{
+		"internalShowId": showID,
+	}); err != nil {
+		return err
+	}
+
 	_, err := s.q.DeleteShow(ctx, showID)
-	return err
+	if err != nil {
+		return err
+	}
+
+	s.hooks.DispatchPost(ctx, hooks.EventShowDeletePost, map[string]any{
+		"internalShowId": showID,
+	})
+	return nil
 }
 
 func (s *Service) ListWorkerData(ctx context.Context) ([]workerDataResponse, error) {

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/keithics/devops-dashboard/api/internal/db/sqlc"
+	"github.com/keithics/devops-dashboard/api/internal/hooks"
 )
 
 const (
@@ -17,7 +18,8 @@ type Handler struct {
 }
 
 type Service struct {
-	q *sqlc.Queries
+	q     *sqlc.Queries
+	hooks hooks.Dispatcher
 }
 
 type externalIDs struct {
