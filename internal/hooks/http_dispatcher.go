@@ -83,8 +83,7 @@ WHERE event_name = $1
 	if err != nil {
 		return err
 	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-Hook-Event", string(event))
+	setHookRequestHeaders(req, event)
 
 	res, err := d.client.Do(req)
 	if err != nil {
@@ -96,4 +95,9 @@ WHERE event_name = $1
 		return fmt.Errorf("hook endpoint returned status %d", res.StatusCode)
 	}
 	return nil
+}
+
+func setHookRequestHeaders(req *http.Request, event Event) {
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Hook-Event", string(event))
 }
