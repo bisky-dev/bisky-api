@@ -44,6 +44,8 @@ func New() *Provider {
 }
 
 func (p *Provider) Search(ctx context.Context, query string, opts metadata.SearchOpts) ([]metadata.SearchHit, error) {
+	return nil, errors.New("tvdb provider is not implemented yet")
+
 	if strings.TrimSpace(query) == "" {
 		return []metadata.SearchHit{}, nil
 	}
@@ -122,6 +124,8 @@ func (p *Provider) searchItems(ctx context.Context, query string, opts metadata.
 }
 
 func (p *Provider) GetShow(ctx context.Context, externalID string) (metadata.Show, error) {
+	return metadata.Show{}, errors.New("tvdb provider is not implemented yet")
+
 	id, err := parseExternalID(externalID)
 	if err != nil {
 		return metadata.Show{}, err
@@ -172,6 +176,8 @@ func (p *Provider) GetShow(ctx context.Context, externalID string) (metadata.Sho
 }
 
 func (p *Provider) ListEpisodes(ctx context.Context, externalID string, opts metadata.ListEpisodesOpts) ([]metadata.Episode, error) {
+	return nil, errors.New("tvdb provider is not implemented yet")
+
 	id, err := parseExternalID(externalID)
 	if err != nil {
 		return nil, err
