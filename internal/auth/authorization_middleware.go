@@ -40,7 +40,7 @@ func isPublicRoute(c *gin.Context) bool {
 
 	path := c.FullPath()
 	switch path {
-	case "/health", "/swagger/*any", "/auth/register", "/auth/login", "/auth/forgot-password":
+	case "/health", "/swagger/*any", "/auth/register", "/auth/login", "/auth/forgot-password", "/api-keys/validate":
 		return true
 	default:
 		return false

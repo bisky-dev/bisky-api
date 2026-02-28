@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/keithics/devops-dashboard/api/docs/swagger"
+	"github.com/keithics/devops-dashboard/api/internal/apikey"
 	"github.com/keithics/devops-dashboard/api/internal/auth"
 	"github.com/keithics/devops-dashboard/api/internal/config"
 	"github.com/keithics/devops-dashboard/api/internal/db/sqlc"
@@ -31,6 +32,7 @@ func NewServer(cfg config.Config, pool *pgxpool.Pool) *Server {
 	r.Use(httperr.Middleware())
 
 	q := sqlc.New(pool)
+	apiKeyHandler := apikey.NewHandler(pool)
 	authHandler := auth.NewHandler(q, cfg.TokenEncryptionKey)
 	var hookDispatcher hooks.Dispatcher = hooks.NoopDispatcher{}
 	httpHookDispatcher, err := hooks.NewHTTPDispatcher(pool)
@@ -58,6 +60,7 @@ func NewServer(cfg config.Config, pool *pgxpool.Pool) *Server {
 	auth.RegisterRoutes(r, authHandler)
 	r.Use(authHandler.RequireAuth())
 	episode.RegisterRoutes(r, episodeHandler)
+	apikey.RegisterRoutes(r, apiKeyHandler)
 	metadata.RegisterRoutes(r, metadataHandler)
 	show.RegisterRoutes(r, showHandler)
 	if hookSettingsHandler != nil {

@@ -15,6 +15,119 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api-keys": {
+            "post": {
+                "description": "Create an API key and return plaintext value once",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "api-keys"
+                ],
+                "summary": "Create API key",
+                "parameters": [
+                    {
+                        "description": "API key payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/apikey.createAPIKeyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/apikey.createAPIKeyResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api-keys/validate": {
+            "post": {
+                "description": "Validate an API key value",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "api-keys"
+                ],
+                "summary": "Validate API key",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api-keys/{id}": {
+            "delete": {
+                "description": "Delete an API key by id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "api-keys"
+                ],
+                "summary": "Delete API key",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "API key id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/forgot-password": {
             "post": {
                 "description": "Request a password reset token for an email address",
@@ -528,58 +641,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/metadata/show": {
-            "post": {
-                "description": "Create a show and enqueue a job_shows record linked to the show",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "metadata"
-                ],
-                "summary": "Add show from metadata search item",
-                "parameters": [
-                    {
-                        "description": "Search show item payload",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/metadata.AddShowRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/metadata.AddShowResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/httperr.APIErrorResponse"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/httperr.APIErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/httperr.APIErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/metadata/show/{externalId}": {
             "get": {
                 "description": "Get show metadata by provider external id",
@@ -622,6 +683,105 @@ const docTemplate = `{
                         "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/settings/hooks": {
+            "get": {
+                "description": "View predefined hooks and configured target URLs",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settings"
+                ],
+                "summary": "List hook settings",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/hooks.Config"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Upsert target URL by predefined hook event name",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settings"
+                ],
+                "summary": "Upsert hook settings",
+                "parameters": [
+                    {
+                        "description": "Hooks settings payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/hooksettings.upsertHooksRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/hooks.Config"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/settings/hooks/keys": {
+            "get": {
+                "description": "View all predefined hook event keys",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settings"
+                ],
+                "summary": "List hook keys",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -689,6 +849,35 @@ const docTemplate = `{
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/shows/worker": {
+            "get": {
+                "description": "List shows and episodes in worker payload format",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "shows"
+                ],
+                "summary": "List worker show data",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/show.workerDataResponse"
+                            }
                         }
                     },
                     "500": {
@@ -848,6 +1037,34 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "apikey.createAPIKeyRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "apikey.createAPIKeyResponse": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "last4": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "auth.forgotPasswordRequest": {
             "type": "object",
             "properties": {
@@ -1023,6 +1240,73 @@ const docTemplate = `{
                 }
             }
         },
+        "hooks.Config": {
+            "type": "object",
+            "properties": {
+                "event": {
+                    "$ref": "#/definitions/hooks.Event"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "hooks.Event": {
+            "type": "string",
+            "enum": [
+                "show.create.pre",
+                "show.create.post",
+                "show.update.pre",
+                "show.update.post",
+                "show.delete.pre",
+                "show.delete.post",
+                "episode.create.pre",
+                "episode.create.post",
+                "episode.update.pre",
+                "episode.update.post",
+                "episode.delete.pre",
+                "episode.delete.post"
+            ],
+            "x-enum-varnames": [
+                "EventShowCreatePre",
+                "EventShowCreatePost",
+                "EventShowUpdatePre",
+                "EventShowUpdatePost",
+                "EventShowDeletePre",
+                "EventShowDeletePost",
+                "EventEpisodeCreatePre",
+                "EventEpisodeCreatePost",
+                "EventEpisodeUpdatePre",
+                "EventEpisodeUpdatePost",
+                "EventEpisodeDeletePre",
+                "EventEpisodeDeletePost"
+            ]
+        },
+        "hooksettings.upsertHookItem": {
+            "type": "object",
+            "properties": {
+                "event": {
+                    "$ref": "#/definitions/hooks.Event"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "hooksettings.upsertHooksRequest": {
+            "type": "object",
+            "properties": {
+                "hooks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/hooksettings.upsertHookItem"
+                    }
+                }
+            }
+        },
         "http.healthResponse": {
             "type": "object",
             "properties": {
@@ -1048,70 +1332,6 @@ const docTemplate = `{
             "properties": {
                 "error": {
                     "$ref": "#/definitions/httperr.APIError"
-                }
-            }
-        },
-        "metadata.AddShowRequest": {
-            "type": "object",
-            "properties": {
-                "altTitles": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "bannerUrl": {
-                    "type": "string"
-                },
-                "endDate": {
-                    "type": "string"
-                },
-                "episodeCount": {
-                    "type": "integer"
-                },
-                "externalId": {
-                    "type": "string"
-                },
-                "posterUrl": {
-                    "type": "string"
-                },
-                "seasonCount": {
-                    "type": "integer"
-                },
-                "startDate": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "synopsis": {
-                    "type": "string"
-                },
-                "titleOriginal": {
-                    "type": "string"
-                },
-                "titlePreferred": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "metadata.AddShowResponse": {
-            "type": "object",
-            "properties": {
-                "internalJobShowId": {
-                    "type": "string"
-                },
-                "internalShowId": {
-                    "type": "string"
-                },
-                "retryCount": {
-                    "type": "integer"
-                },
-                "status": {
-                    "type": "string"
                 }
             }
         },
@@ -1381,6 +1601,48 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "show.workerDataResponse": {
+            "type": "object",
+            "properties": {
+                "episodes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/show.workerEpisode"
+                    }
+                },
+                "internalShowId": {
+                    "type": "string"
+                },
+                "show": {
+                    "$ref": "#/definitions/show.workerShowResponse"
+                }
+            }
+        },
+        "show.workerEpisode": {
+            "type": "object",
+            "properties": {
+                "airDate": {
+                    "type": "string"
+                },
+                "episodeNumber": {
+                    "type": "integer"
+                }
+            }
+        },
+        "show.workerShowResponse": {
+            "type": "object",
+            "properties": {
+                "altTitles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "externalId": {
                     "type": "string"
                 }
             }
