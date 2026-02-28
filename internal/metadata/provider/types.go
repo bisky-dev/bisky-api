@@ -15,9 +15,8 @@ const (
 )
 
 type SearchOpts struct {
-	Page   int
-	Limit  int
-	Strict bool
+	Page  int
+	Limit int
 }
 
 type ListEpisodesOpts struct {

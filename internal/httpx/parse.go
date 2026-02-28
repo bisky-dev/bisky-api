@@ -17,16 +17,3 @@ func ParsePositiveInt(raw string, fallback int) int {
 
 	return parsed
 }
-
-func ParseBool(raw string, fallback bool) bool {
-	if strings.TrimSpace(raw) == "" {
-		return fallback
-	}
-
-	parsed, err := strconv.ParseBool(raw)
-	if err != nil {
-		return fallback
-	}
-
-	return parsed
-}

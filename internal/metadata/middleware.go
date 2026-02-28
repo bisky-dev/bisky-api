@@ -20,9 +20,8 @@ func (h *Handler) BindSearch() gin.HandlerFunc {
 		}
 
 		opts := worker.SearchOpts{
-			Page:   httpx.ParsePositiveInt(c.Query("page"), 1),
-			Limit:  httpx.ParsePositiveInt(c.Query("limit"), 10),
-			Strict: httpx.ParseBool(c.Query("strict"), true),
+			Page:  httpx.ParsePositiveInt(c.Query("page"), 1),
+			Limit: httpx.ParsePositiveInt(c.Query("limit"), 10),
 		}
 
 		c.Set(ctxProviderTypeKey, provider)
