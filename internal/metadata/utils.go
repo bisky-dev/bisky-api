@@ -8,7 +8,6 @@ import (
 	"github.com/keithics/devops-dashboard/api/internal/httperr"
 	"github.com/keithics/devops-dashboard/api/internal/httpx"
 	worker "github.com/keithics/devops-dashboard/api/internal/metadata/provider"
-	normalizeutil "github.com/keithics/devops-dashboard/api/internal/utils/normalize"
 )
 
 func parseProvider(raw string) (worker.ProviderName, error) {
@@ -90,72 +89,4 @@ func getEpisodesInput(c *gin.Context) (worker.ProviderName, string, worker.ListE
 		return "", "", worker.ListEpisodesOpts{}, false
 	}
 	return provider, externalID, opts, true
-}
-
-func normalizeAddShowRequest(req *AddShowRequest) {
-	req.ExternalID = normalizeutil.String(req.ExternalID)
-	req.TitlePreferred = normalizeutil.String(req.TitlePreferred)
-	req.TitleOriginal = normalizeutil.StringPtr(req.TitleOriginal)
-	req.Type = normalizeutil.LowerString(req.Type)
-	req.Status = normalizeutil.LowerString(req.Status)
-	req.Synopsis = normalizeutil.StringPtr(req.Synopsis)
-	req.StartDate = normalizeutil.StringPtr(req.StartDate)
-	req.EndDate = normalizeutil.StringPtr(req.EndDate)
-	req.PosterUrl = normalizeutil.StringPtr(req.PosterUrl)
-	req.BannerUrl = normalizeutil.StringPtr(req.BannerUrl)
-	req.AltTitles = normalizeutil.Strings(req.AltTitles)
-}
-
-func validateAddShowRequest(req AddShowRequest) error {
-	if err := httpx.ValidateVar(req.ExternalID, "required,max=128", "externalId is invalid"); err != nil {
-		return err
-	}
-	if err := validatePrefixedExternalID(req.ExternalID); err != nil {
-		return err
-	}
-	if err := httpx.ValidateVar(req.TitlePreferred, "required,max=500", "titlePreferred is invalid"); err != nil {
-		return err
-	}
-	if err := httpx.ValidateVar(req.Type, "required,oneof=anime tv movie ova special", "type is invalid"); err != nil {
-		return err
-	}
-	if err := httpx.ValidateVar(req.Status, "required,oneof=ongoing finished", "status is invalid"); err != nil {
-		return err
-	}
-	if err := httpx.ValidateOptionalDate(req.StartDate, "startDate is invalid"); err != nil {
-		return err
-	}
-	if err := httpx.ValidateOptionalDate(req.EndDate, "endDate is invalid"); err != nil {
-		return err
-	}
-	if err := validateOptionalInt64(req.SeasonCount, "gte=0", "seasonCount is invalid"); err != nil {
-		return err
-	}
-	if err := validateOptionalInt64(req.EpisodeCount, "gte=0", "episodeCount is invalid"); err != nil {
-		return err
-	}
-	return nil
-}
-
-var errExternalIDMustBePrefixed = errors.New("externalId must start with anidb:, anilist:, or tvdb:")
-
-func validatePrefixedExternalID(externalID string) error {
-	value := strings.ToLower(strings.TrimSpace(externalID))
-	switch {
-	case strings.HasPrefix(value, "anidb:"):
-		return nil
-	case strings.HasPrefix(value, "anilist:"):
-		return nil
-	case strings.HasPrefix(value, "tvdb:"):
-		return nil
-	default:
-		return errExternalIDMustBePrefixed
-	}
-}
-
-func validateOptionalInt64(value *int64, rule string, message string) error {
-	if value == nil {
-		return nil
-	}
-	return httpx.ValidateVar(*value, rule, message)
 }

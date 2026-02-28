@@ -4,8 +4,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/keithics/devops-dashboard/api/internal/httperr"
-	"github.com/keithics/devops-dashboard/api/internal/httpx"
 )
 
 // Search godoc
@@ -92,35 +90,4 @@ func (h *Handler) ListEpisodes(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, items)
-}
-
-// AddShow godoc
-//
-//	@Summary		Add show from metadata search item
-//	@Description	Create a show and enqueue a job_shows record linked to the show
-//	@Tags			metadata
-//	@Accept			json
-//	@Produce		json
-//	@Param			payload	body		AddShowRequest	true	"Search show item payload"
-//	@Success		201		{object}	AddShowResponse
-//	@Failure		400		{object}	httperr.APIErrorResponse
-//	@Failure		409		{object}	httperr.APIErrorResponse
-//	@Failure		500		{object}	httperr.APIErrorResponse
-//	@Router			/metadata/show [post]
-func (h *Handler) AddShow(c *gin.Context) {
-	req, ok := httpx.AbortIfMissingContext[AddShowRequest](c, ctxAddShowRequest)
-	if !ok {
-		return
-	}
-
-	item, err := h.svc.AddShow(c.Request.Context(), req)
-	if err != nil {
-		if httpx.AbortIfDBErr(c, err, "failed to add show job") {
-			return
-		}
-		httperr.Abort(c, httperr.Internal("failed to add show job").WithCause(err))
-		return
-	}
-
-	c.JSON(http.StatusCreated, item)
 }
