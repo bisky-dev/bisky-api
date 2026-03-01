@@ -17,37 +17,52 @@ func NewHandlerWithHooks(q *sqlc.Queries, dispatcher hooks.Dispatcher) *Handler 
 		dispatcher = hooks.NoopDispatcher{}
 	}
 
+	service := NewService(q, dispatcher)
+
 	return &Handler{
-		svc: &Service{
-			q:     q,
-			hooks: dispatcher,
-		},
+		svc: service,
 	}
 }
 
-func (s *Service) CreateShow(ctx context.Context, req createShowRequest) (sqlc.Show, error) {
+func NewService(q *sqlc.Queries, dispatcher hooks.Dispatcher) *Service {
+	if dispatcher == nil {
+		dispatcher = hooks.NoopDispatcher{}
+	}
+	return &Service{
+		q:     q,
+		hooks: dispatcher,
+	}
+}
+
+func (h *Handler) Service() *Service {
+	return h.svc
+}
+
+func (s *Service) CreateShow(ctx context.Context, req Show) (sqlc.Show, error) {
+	createReq := createShowRequest(req)
+
 	if err := s.hooks.DispatchPre(ctx, hooks.EventShowCreatePre, req); err != nil {
 		return sqlc.Show{}, err
 	}
 
-	externalIDs, err := marshalExternalID(req.ExternalID)
+	externalIDs, err := marshalExternalID(createReq.ExternalID)
 	if err != nil {
 		return sqlc.Show{}, err
 	}
 
 	created, err := s.q.CreateShow(ctx, sqlc.CreateShowParams{
-		TitlePreferred: req.TitlePreferred,
-		TitleOriginal:  req.TitleOriginal,
-		AltTitles:      req.AltTitles,
-		Type:           req.Type,
-		Status:         req.Status,
-		Synopsis:       req.Synopsis,
-		StartDate:      req.StartDate,
-		EndDate:        req.EndDate,
-		PosterUrl:      req.PosterUrl,
-		BannerUrl:      req.BannerUrl,
-		SeasonCount:    req.SeasonCount,
-		EpisodeCount:   req.EpisodeCount,
+		TitlePreferred: createReq.TitlePreferred,
+		TitleOriginal:  createReq.TitleOriginal,
+		AltTitles:      createReq.AltTitles,
+		Type:           createReq.Type,
+		Status:         createReq.Status,
+		Synopsis:       createReq.Synopsis,
+		StartDate:      createReq.StartDate,
+		EndDate:        createReq.EndDate,
+		PosterUrl:      createReq.PosterUrl,
+		BannerUrl:      createReq.BannerUrl,
+		SeasonCount:    createReq.SeasonCount,
+		EpisodeCount:   createReq.EpisodeCount,
 		ExternalIds:    externalIDs,
 	})
 	if err != nil {

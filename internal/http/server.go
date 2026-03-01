@@ -55,8 +55,8 @@ func NewServer(cfg config.Config, pool *pgxpool.Pool) *Server {
 		workermeta.ProviderAniList: anilistProvider,
 		workermeta.ProviderTVDB:    tvdb.New(),
 	})
-	metadataHandler := metadata.NewHandler(metadata.NewService(workermeta.NewService(metadataRegistry)))
 	showHandler := show.NewHandlerWithHooks(q, hookDispatcher)
+	metadataHandler := metadata.NewHandler(metadata.NewService(workermeta.NewService(metadataRegistry), showHandler.Service()))
 	hookSettingsHandler, err := hooksettings.NewHandler(pool)
 	if err != nil {
 		log.Printf("failed to initialize hook settings handler: %v", err)

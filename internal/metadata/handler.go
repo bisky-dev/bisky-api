@@ -90,6 +90,33 @@ func (h *Handler) GetShow(c *gin.Context) {
 	c.JSON(http.StatusOK, item)
 }
 
+// AddShow godoc
+//
+//	@Summary		Metadata add show
+//	@Description	Fetch provider show by external id and create a local show record
+//	@Tags			metadata
+//	@Produce		json
+//	@Param			externalId	path		string	true	"Provider external id"
+//	@Param			type		query		string	false	"Provider type: anidb|anilist|tvdb (default anidb)"
+//	@Success		201			{object}	AddShowResponse
+//	@Failure		400			{object}	httperr.APIErrorResponse
+//	@Failure		500			{object}	httperr.APIErrorResponse
+//	@Router			/metadata/show/{externalId} [post]
+func (h *Handler) AddShow(c *gin.Context) {
+	provider, externalID, ok := getProviderAndExternalID(c)
+	if !ok {
+		return
+	}
+
+	item, err := h.svc.AddShowByExternalID(c.Request.Context(), provider, externalID)
+	if err != nil {
+		abortProviderErr(c, "failed to add metadata show", err)
+		return
+	}
+
+	c.JSON(http.StatusCreated, item)
+}
+
 // ListEpisodes godoc
 //
 //	@Summary		Metadata list episodes

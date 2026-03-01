@@ -200,6 +200,43 @@ definitions:
       error:
         $ref: '#/definitions/httperr.APIError'
     type: object
+  metadata.AddShowResponse:
+    properties:
+      altTitles:
+        items:
+          type: string
+        type: array
+      bannerUrl:
+        type: string
+      createdAt:
+        type: string
+      endDate:
+        type: string
+      episodeCount:
+        type: integer
+      externalId:
+        type: string
+      internalShowId:
+        type: string
+      posterUrl:
+        type: string
+      seasonCount:
+        type: integer
+      startDate:
+        type: string
+      status:
+        type: string
+      synopsis:
+        type: string
+      titleOriginal:
+        type: string
+      titlePreferred:
+        type: string
+      type:
+        type: string
+      updatedAt:
+        type: string
+    type: object
   metadata.DiscoverResponse:
     properties:
       currentlyAiring:
@@ -909,6 +946,36 @@ paths:
           schema:
             $ref: '#/definitions/httperr.APIErrorResponse'
       summary: Metadata get show
+      tags:
+      - metadata
+    post:
+      description: Fetch provider show by external id and create a local show record
+      parameters:
+      - description: Provider external id
+        in: path
+        name: externalId
+        required: true
+        type: string
+      - description: 'Provider type: anidb|anilist|tvdb (default anidb)'
+        in: query
+        name: type
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/metadata.AddShowResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+      summary: Metadata add show
       tags:
       - metadata
   /settings/hooks:

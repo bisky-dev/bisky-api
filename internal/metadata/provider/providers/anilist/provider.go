@@ -40,7 +40,7 @@ const (
     }
   }
 }`
-	discoverQuery = `query ($page: Int!, $perPage: Int!) {
+	discoverQuery = `query ($page: Int!, $perPage: Int!, $currentlyPerPage: Int!) {
   trending: Page(page: $page, perPage: $perPage) {
     media(type: ANIME, sort: TRENDING_DESC) {
       id
@@ -157,7 +157,7 @@ const (
       }
     }
   }
-  currentlyAiring: Page(page: $page, perPage: $perPage) {
+  currentlyAiring: Page(page: $page, perPage: $currentlyPerPage) {
     media(type: ANIME, status: RELEASING, sort: POPULARITY_DESC) {
       id
       type
@@ -261,11 +261,15 @@ func (p *Provider) Search(ctx context.Context, query string, opts metadata.Searc
 }
 
 func (p *Provider) Discover(ctx context.Context, opts metadata.DiscoverOpts) (metadata.DiscoverResult, error) {
+	regularPerPage := normalizeutil.Limit(opts.Limit, defaultPageSize, 25)
+	currentlyPerPage := normalizeutil.Limit(opts.Limit, defaultPageSize, maxPageSize)
+
 	request := graphQLRequest{
 		Query: discoverQuery,
 		Variables: map[string]any{
-			"page":    normalizeutil.Page(opts.Page, defaultPage),
-			"perPage": normalizeutil.Limit(opts.Limit, defaultPageSize, maxPageSize),
+			"page":             normalizeutil.Page(opts.Page, defaultPage),
+			"perPage":          regularPerPage,
+			"currentlyPerPage": currentlyPerPage,
 		},
 	}
 

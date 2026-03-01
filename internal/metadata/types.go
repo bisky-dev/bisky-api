@@ -1,7 +1,10 @@
 package metadata
 
 import (
+	"time"
+
 	worker "github.com/keithics/devops-dashboard/api/internal/metadata/provider"
+	"github.com/keithics/devops-dashboard/api/internal/show"
 )
 
 const (
@@ -18,7 +21,8 @@ type Handler struct {
 }
 
 type Service struct {
-	worker *worker.Service
+	worker  *worker.Service
+	showSvc *show.Service
 }
 
 type SearchHitResponse struct {
@@ -69,4 +73,11 @@ type EpisodeResponse struct {
 	Title          string  `json:"title"`
 	AirDate        *string `json:"airDate,omitempty"`
 	RuntimeMinutes *int64  `json:"runtimeMinutes,omitempty"`
+}
+
+type AddShowResponse struct {
+	InternalShowID string `json:"internalShowId"`
+	ShowResponse
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }

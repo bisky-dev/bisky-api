@@ -5,12 +5,14 @@ import (
 	"strings"
 
 	worker "github.com/keithics/devops-dashboard/api/internal/metadata/provider"
+	showmodel "github.com/keithics/devops-dashboard/api/internal/show"
 	normalizeutil "github.com/keithics/devops-dashboard/api/internal/utils/normalize"
 )
 
-func NewService(workerService *worker.Service) *Service {
+func NewService(workerService *worker.Service, showService *showmodel.Service) *Service {
 	return &Service{
-		worker: workerService,
+		worker:  workerService,
+		showSvc: showService,
 	}
 }
 
@@ -36,6 +38,39 @@ func (s *Service) GetShow(ctx context.Context, provider worker.ProviderName, ext
 
 func (s *Service) ListEpisodes(ctx context.Context, provider worker.ProviderName, externalID string, opts worker.ListEpisodesOpts) ([]worker.Episode, error) {
 	return s.worker.ListEpisodes(ctx, provider, externalID, opts)
+}
+
+func (s *Service) AddShowByExternalID(ctx context.Context, provider worker.ProviderName, externalID string) (AddShowResponse, error) {
+	item, err := s.worker.GetShow(ctx, provider, externalID)
+	if err != nil {
+		return AddShowResponse{}, err
+	}
+
+	created, err := s.showSvc.CreateShow(ctx, showmodel.Show(item))
+	if err != nil {
+		return AddShowResponse{}, err
+	}
+
+	return AddShowResponse{
+		InternalShowID: created.InternalShowID,
+		ShowResponse: ShowResponse{
+			ExternalID:     item.ExternalID,
+			TitlePreferred: item.TitlePreferred,
+			TitleOriginal:  item.TitleOriginal,
+			AltTitles:      item.AltTitles,
+			Type:           item.Type,
+			Status:         item.Status,
+			Synopsis:       item.Synopsis,
+			StartDate:      item.StartDate,
+			EndDate:        item.EndDate,
+			PosterUrl:      item.PosterUrl,
+			BannerUrl:      item.BannerUrl,
+			SeasonCount:    item.SeasonCount,
+			EpisodeCount:   item.EpisodeCount,
+		},
+		CreatedAt: created.CreatedAt,
+		UpdatedAt: created.UpdatedAt,
+	}, nil
 }
 
 func filterTitleContains(query string, items []worker.SearchHit) []worker.SearchHit {

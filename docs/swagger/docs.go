@@ -738,6 +738,51 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "description": "Fetch provider show by external id and create a local show record",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "metadata"
+                ],
+                "summary": "Metadata add show",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Provider external id",
+                        "name": "externalId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Provider type: anidb|anilist|tvdb (default anidb)",
+                        "name": "type",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/metadata.AddShowResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    }
+                }
             }
         },
         "/settings/hooks": {
@@ -1384,6 +1429,62 @@ const docTemplate = `{
             "properties": {
                 "error": {
                     "$ref": "#/definitions/httperr.APIError"
+                }
+            }
+        },
+        "metadata.AddShowResponse": {
+            "type": "object",
+            "properties": {
+                "altTitles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "bannerUrl": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "endDate": {
+                    "type": "string"
+                },
+                "episodeCount": {
+                    "type": "integer"
+                },
+                "externalId": {
+                    "type": "string"
+                },
+                "internalShowId": {
+                    "type": "string"
+                },
+                "posterUrl": {
+                    "type": "string"
+                },
+                "seasonCount": {
+                    "type": "integer"
+                },
+                "startDate": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "synopsis": {
+                    "type": "string"
+                },
+                "titleOriginal": {
+                    "type": "string"
+                },
+                "titlePreferred": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
                 }
             }
         },
