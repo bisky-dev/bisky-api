@@ -3,6 +3,7 @@ package http
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -15,6 +16,7 @@ import (
 	"github.com/keithics/devops-dashboard/api/internal/hooks"
 	"github.com/keithics/devops-dashboard/api/internal/hooksettings"
 	"github.com/keithics/devops-dashboard/api/internal/httperr"
+	"github.com/keithics/devops-dashboard/api/internal/httpx"
 	"github.com/keithics/devops-dashboard/api/internal/metadata"
 	workermeta "github.com/keithics/devops-dashboard/api/internal/metadata/provider"
 	"github.com/keithics/devops-dashboard/api/internal/metadata/provider/providers/anilist"
@@ -22,6 +24,7 @@ import (
 	"github.com/keithics/devops-dashboard/api/internal/show"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"golang.org/x/time/rate"
 )
 
 func NewServer(cfg config.Config, pool *pgxpool.Pool) *Server {
@@ -55,7 +58,7 @@ func NewServer(cfg config.Config, pool *pgxpool.Pool) *Server {
 		log.Printf("failed to initialize hook settings handler: %v", err)
 	}
 
-	r.GET("/health", healthHandler)
+	r.GET("/health", httpx.RateLimitByIP(rate.Limit(10), 20, 5*time.Minute), healthHandler)
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	auth.RegisterRoutes(r, authHandler)
 	r.Use(authHandler.RequireAuth())

@@ -64,3 +64,4 @@ func hasTitleContainsMatch(item worker.SearchHit, normalizedQuery string) bool {
 	}
 	return false
 }
+sabby
