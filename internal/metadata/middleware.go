@@ -49,6 +49,24 @@ func (h *Handler) BindExternalID() gin.HandlerFunc {
 	}
 }
 
+func (h *Handler) BindDiscover() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		provider, err := parseProvider(c.Query("type"))
+		if httpx.AbortIfErr(c, err) {
+			return
+		}
+
+		opts := worker.DiscoverOpts{
+			Page:  httpx.ParsePositiveInt(c.Query("page"), 1),
+			Limit: httpx.ParsePositiveInt(c.Query("limit"), 25),
+		}
+
+		c.Set(ctxProviderTypeKey, provider)
+		c.Set(ctxDiscoverOptsKey, opts)
+		c.Next()
+	}
+}
+
 func (h *Handler) BindEpisodesOpts() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		opts := worker.ListEpisodesOpts{

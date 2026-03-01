@@ -121,6 +121,12 @@ func (p *Provider) searchItems(ctx context.Context, query string, opts metadata.
 	return items, nil
 }
 
+func (p *Provider) Discover(ctx context.Context, opts metadata.DiscoverOpts) (metadata.DiscoverResult, error) {
+	_ = ctx
+	_ = opts
+	return metadata.DiscoverResult{}, errors.New("tvdb provider is not implemented yet")
+}
+
 func (p *Provider) GetShow(ctx context.Context, externalID string) (metadata.Show, error) {
 	return metadata.Show{}, errors.New("tvdb provider is not implemented yet")
 

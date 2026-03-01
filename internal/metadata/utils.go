@@ -67,6 +67,18 @@ func getSearchInput(c *gin.Context) (worker.ProviderName, string, worker.SearchO
 	return provider, query, opts, true
 }
 
+func getDiscoverInput(c *gin.Context) (worker.ProviderName, worker.DiscoverOpts, bool) {
+	provider, ok := httpx.AbortIfMissingContext[worker.ProviderName](c, ctxProviderTypeKey)
+	if !ok {
+		return "", worker.DiscoverOpts{}, false
+	}
+	opts, ok := httpx.AbortIfMissingContext[worker.DiscoverOpts](c, ctxDiscoverOptsKey)
+	if !ok {
+		return "", worker.DiscoverOpts{}, false
+	}
+	return provider, opts, true
+}
+
 func getProviderAndExternalID(c *gin.Context) (worker.ProviderName, string, bool) {
 	provider, ok := httpx.AbortIfMissingContext[worker.ProviderName](c, ctxProviderTypeKey)
 	if !ok {

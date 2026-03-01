@@ -517,6 +517,58 @@ const docTemplate = `{
                 }
             }
         },
+        "/metadata/discover": {
+            "get": {
+                "description": "Get homepage-style discover feeds from provider (anilist recommended)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "metadata"
+                ],
+                "summary": "Metadata discover",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Provider type: anilist|anidb|tvdb (default anidb)",
+                        "name": "type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit per section",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/metadata.DiscoverResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httperr.APIErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/metadata/episodes/{externalId}": {
             "get": {
                 "description": "List episodes metadata by provider external id",
@@ -1332,6 +1384,41 @@ const docTemplate = `{
             "properties": {
                 "error": {
                     "$ref": "#/definitions/httperr.APIError"
+                }
+            }
+        },
+        "metadata.DiscoverResponse": {
+            "type": "object",
+            "properties": {
+                "currentlyAiring": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/metadata.ShowResponse"
+                    }
+                },
+                "popular": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/metadata.ShowResponse"
+                    }
+                },
+                "topRated": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/metadata.ShowResponse"
+                    }
+                },
+                "trending": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/metadata.ShowResponse"
+                    }
+                },
+                "upcoming": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/metadata.ShowResponse"
+                    }
                 }
             }
         },

@@ -200,6 +200,29 @@ definitions:
       error:
         $ref: '#/definitions/httperr.APIError'
     type: object
+  metadata.DiscoverResponse:
+    properties:
+      currentlyAiring:
+        items:
+          $ref: '#/definitions/metadata.ShowResponse'
+        type: array
+      popular:
+        items:
+          $ref: '#/definitions/metadata.ShowResponse'
+        type: array
+      topRated:
+        items:
+          $ref: '#/definitions/metadata.ShowResponse'
+        type: array
+      trending:
+        items:
+          $ref: '#/definitions/metadata.ShowResponse'
+        type: array
+      upcoming:
+        items:
+          $ref: '#/definitions/metadata.ShowResponse'
+        type: array
+    type: object
   metadata.EpisodeResponse:
     properties:
       airDate:
@@ -741,6 +764,40 @@ paths:
       summary: Health check
       tags:
       - system
+  /metadata/discover:
+    get:
+      description: Get homepage-style discover feeds from provider (anilist recommended)
+      parameters:
+      - description: 'Provider type: anilist|anidb|tvdb (default anidb)'
+        in: query
+        name: type
+        type: string
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Limit per section
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/metadata.DiscoverResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperr.APIErrorResponse'
+      summary: Metadata discover
+      tags:
+      - metadata
   /metadata/episodes/{externalId}:
     get:
       description: List episodes metadata by provider external id

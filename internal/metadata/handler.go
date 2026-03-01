@@ -35,6 +35,34 @@ func (h *Handler) Search(c *gin.Context) {
 	c.JSON(http.StatusOK, items)
 }
 
+// Discover godoc
+//
+//	@Summary		Metadata discover
+//	@Description	Get homepage-style discover feeds from provider (anilist recommended)
+//	@Tags			metadata
+//	@Produce		json
+//	@Param			type	query		string	false	"Provider type: anilist|anidb|tvdb (default anidb)"
+//	@Param			page	query		int		false	"Page"
+//	@Param			limit	query		int		false	"Limit per section"
+//	@Success		200		{object}	DiscoverResponse
+//	@Failure		400		{object}	httperr.APIErrorResponse
+//	@Failure		500		{object}	httperr.APIErrorResponse
+//	@Router			/metadata/discover [get]
+func (h *Handler) Discover(c *gin.Context) {
+	provider, opts, ok := getDiscoverInput(c)
+	if !ok {
+		return
+	}
+
+	items, err := h.svc.Discover(c.Request.Context(), provider, opts)
+	if err != nil {
+		abortProviderErr(c, "failed to discover metadata", err)
+		return
+	}
+
+	c.JSON(http.StatusOK, items)
+}
+
 // GetShow godoc
 //
 //	@Summary		Metadata get show

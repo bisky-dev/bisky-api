@@ -9,6 +9,7 @@ const (
 	ctxQueryKey        = "metadata.search.query"
 	ctxExternalIDKey   = "metadata.external.id"
 	ctxSearchOptsKey   = "metadata.search.opts"
+	ctxDiscoverOptsKey = "metadata.discover.opts"
 	ctxEpisodesOptsKey = "metadata.episodes.opts"
 )
 
@@ -50,6 +51,14 @@ type ShowResponse struct {
 	BannerUrl      *string  `json:"bannerUrl,omitempty"`
 	SeasonCount    *int64   `json:"seasonCount,omitempty"`
 	EpisodeCount   *int64   `json:"episodeCount,omitempty"`
+}
+
+type DiscoverResponse struct {
+	Trending        []ShowResponse `json:"trending"`
+	Popular         []ShowResponse `json:"popular"`
+	TopRated        []ShowResponse `json:"topRated"`
+	Upcoming        []ShowResponse `json:"upcoming"`
+	CurrentlyAiring []ShowResponse `json:"currentlyAiring"`
 }
 
 type EpisodeResponse struct {

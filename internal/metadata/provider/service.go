@@ -14,6 +14,14 @@ func (s *Service) Search(ctx context.Context, providerName ProviderName, query s
 	return provider.Search(ctx, query, opts)
 }
 
+func (s *Service) Discover(ctx context.Context, providerName ProviderName, opts DiscoverOpts) (DiscoverResult, error) {
+	provider, err := s.registry.Provider(providerName)
+	if err != nil {
+		return DiscoverResult{}, err
+	}
+	return provider.Discover(ctx, opts)
+}
+
 func (s *Service) GetShow(ctx context.Context, providerName ProviderName, externalID string) (Show, error) {
 	provider, err := s.registry.Provider(providerName)
 	if err != nil {

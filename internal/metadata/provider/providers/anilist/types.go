@@ -19,8 +19,29 @@ type graphQLError struct {
 type graphQLSearchResponse struct {
 	Data struct {
 		Page struct {
-			Media []anilistMediaSearch `json:"media"`
+			Media []anilistMediaSummary `json:"media"`
 		} `json:"Page"`
+	} `json:"data"`
+	Errors []graphQLError `json:"errors"`
+}
+
+type graphQLDiscoverResponse struct {
+	Data struct {
+		Trending struct {
+			Media []anilistMediaSummary `json:"media"`
+		} `json:"trending"`
+		Popular struct {
+			Media []anilistMediaSummary `json:"media"`
+		} `json:"popular"`
+		TopRated struct {
+			Media []anilistMediaSummary `json:"media"`
+		} `json:"topRated"`
+		Upcoming struct {
+			Media []anilistMediaSummary `json:"media"`
+		} `json:"upcoming"`
+		CurrentlyAiring struct {
+			Media []anilistMediaSummary `json:"media"`
+		} `json:"currentlyAiring"`
 	} `json:"data"`
 	Errors []graphQLError `json:"errors"`
 }
@@ -41,15 +62,22 @@ type graphQLEpisodesResponse struct {
 	Errors []graphQLError `json:"errors"`
 }
 
-type anilistMediaSearch struct {
-	ID           int64             `json:"id"`
-	Type         string            `json:"type"`
-	Status       string            `json:"status"`
-	AverageScore *float64          `json:"averageScore"`
-	Description  *string           `json:"description"`
-	BannerImage  *string           `json:"bannerImage"`
-	Synonyms     []string          `json:"synonyms"`
-	Title        anilistMediaTitle `json:"title"`
+type anilistMediaSummary struct {
+	ID          int64             `json:"id"`
+	Type        string            `json:"type"`
+	Status      string            `json:"status"`
+	Description *string           `json:"description"`
+	BannerImage *string           `json:"bannerImage"`
+	Synonyms    []string          `json:"synonyms"`
+	Episodes    *int64            `json:"episodes"`
+	CoverImage  anilistCoverImage `json:"coverImage"`
+	StartDate   anilistDate       `json:"startDate"`
+	EndDate     anilistDate       `json:"endDate"`
+	Title       anilistMediaTitle `json:"title"`
+}
+
+type anilistCoverImage struct {
+	Large *string `json:"large"`
 }
 
 type anilistMediaDetails struct {
@@ -59,11 +87,9 @@ type anilistMediaDetails struct {
 	Synonyms    []string          `json:"synonyms"`
 	Description *string           `json:"description"`
 	BannerImage *string           `json:"bannerImage"`
-	CoverImage  struct {
-		Large *string `json:"large"`
-	} `json:"coverImage"`
-	StartDate anilistDate `json:"startDate"`
-	EndDate   anilistDate `json:"endDate"`
+	CoverImage  anilistCoverImage `json:"coverImage"`
+	StartDate   anilistDate       `json:"startDate"`
+	EndDate     anilistDate       `json:"endDate"`
 }
 
 type anilistMediaTitle struct {

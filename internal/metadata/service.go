@@ -26,6 +26,10 @@ func (s *Service) Search(ctx context.Context, provider worker.ProviderName, quer
 	return filterTitleContains(query, items), nil
 }
 
+func (s *Service) Discover(ctx context.Context, provider worker.ProviderName, opts worker.DiscoverOpts) (worker.DiscoverResult, error) {
+	return s.worker.Discover(ctx, provider, opts)
+}
+
 func (s *Service) GetShow(ctx context.Context, provider worker.ProviderName, externalID string) (worker.Show, error) {
 	return s.worker.GetShow(ctx, provider, externalID)
 }

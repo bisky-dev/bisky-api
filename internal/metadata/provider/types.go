@@ -19,6 +19,11 @@ type SearchOpts struct {
 	Limit int
 }
 
+type DiscoverOpts struct {
+	Page  int
+	Limit int
+}
+
 type ListEpisodesOpts struct {
 	Page         int
 	Limit        int
@@ -28,6 +33,14 @@ type ListEpisodesOpts struct {
 type SearchHit = showmodel.Show
 
 type Show = showmodel.Show
+
+type DiscoverResult struct {
+	Trending        []Show `json:"trending"`
+	Popular         []Show `json:"popular"`
+	TopRated        []Show `json:"topRated"`
+	Upcoming        []Show `json:"upcoming"`
+	CurrentlyAiring []Show `json:"currentlyAiring"`
+}
 
 type Episode struct {
 	Provider       ProviderName `json:"provider"`
@@ -41,6 +54,7 @@ type Episode struct {
 
 type Provider interface {
 	Search(ctx context.Context, query string, opts SearchOpts) ([]SearchHit, error)
+	Discover(ctx context.Context, opts DiscoverOpts) (DiscoverResult, error)
 	GetShow(ctx context.Context, externalID string) (Show, error)
 	ListEpisodes(ctx context.Context, externalID string, opts ListEpisodesOpts) ([]Episode, error)
 }

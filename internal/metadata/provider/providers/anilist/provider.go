@@ -40,6 +40,153 @@ const (
     }
   }
 }`
+	discoverQuery = `query ($page: Int!, $perPage: Int!) {
+  trending: Page(page: $page, perPage: $perPage) {
+    media(type: ANIME, sort: TRENDING_DESC) {
+      id
+      type
+      status
+      description(asHtml: false)
+      bannerImage
+      synonyms
+      episodes
+      coverImage {
+        large
+      }
+      startDate {
+        year
+        month
+        day
+      }
+      endDate {
+        year
+        month
+        day
+      }
+      title {
+        romaji
+        english
+        native
+      }
+    }
+  }
+  popular: Page(page: $page, perPage: $perPage) {
+    media(type: ANIME, sort: POPULARITY_DESC) {
+      id
+      type
+      status
+      description(asHtml: false)
+      bannerImage
+      synonyms
+      episodes
+      coverImage {
+        large
+      }
+      startDate {
+        year
+        month
+        day
+      }
+      endDate {
+        year
+        month
+        day
+      }
+      title {
+        romaji
+        english
+        native
+      }
+    }
+  }
+  topRated: Page(page: $page, perPage: $perPage) {
+    media(type: ANIME, sort: SCORE_DESC) {
+      id
+      type
+      status
+      description(asHtml: false)
+      bannerImage
+      synonyms
+      episodes
+      coverImage {
+        large
+      }
+      startDate {
+        year
+        month
+        day
+      }
+      endDate {
+        year
+        month
+        day
+      }
+      title {
+        romaji
+        english
+        native
+      }
+    }
+  }
+  upcoming: Page(page: $page, perPage: $perPage) {
+    media(type: ANIME, status: NOT_YET_RELEASED, sort: POPULARITY_DESC) {
+      id
+      type
+      status
+      description(asHtml: false)
+      bannerImage
+      synonyms
+      episodes
+      coverImage {
+        large
+      }
+      startDate {
+        year
+        month
+        day
+      }
+      endDate {
+        year
+        month
+        day
+      }
+      title {
+        romaji
+        english
+        native
+      }
+    }
+  }
+  currentlyAiring: Page(page: $page, perPage: $perPage) {
+    media(type: ANIME, status: RELEASING, sort: POPULARITY_DESC) {
+      id
+      type
+      status
+      description(asHtml: false)
+      bannerImage
+      synonyms
+      episodes
+      coverImage {
+        large
+      }
+      startDate {
+        year
+        month
+        day
+      }
+      endDate {
+        year
+        month
+        day
+      }
+      title {
+        romaji
+        english
+        native
+      }
+    }
+  }
+}`
 	showQuery = `query ($id: Int!) {
   Media(id: $id, type: ANIME) {
     id
@@ -107,25 +254,33 @@ func (p *Provider) Search(ctx context.Context, query string, opts metadata.Searc
 
 	hits := make([]metadata.SearchHit, 0, len(response.Data.Page.Media))
 	for _, media := range response.Data.Page.Media {
-		titlePreferred, titleOriginal := pickTitles(media.Title)
-		typeValue := mapAniListType(media.Type)
-		bannerURL := normalizeutil.StringPtr(media.BannerImage)
-		synopsis := normalizeutil.StringPtr(media.Description)
-		_ = normalizeAverageScore(media.AverageScore)
-
-		hits = append(hits, metadata.SearchHit{
-			ExternalID:     formatExternalID(strconv.FormatInt(media.ID, 10)),
-			TitlePreferred: titlePreferred,
-			TitleOriginal:  titleOriginal,
-			AltTitles:      buildAniListAltTitles(titlePreferred, titleOriginal, media.Title, media.Synonyms),
-			Type:           typeValue,
-			Status:         showmodel.NormalizeStatusOrDefault(media.Status, showmodel.StatusOngoing),
-			Synopsis:       synopsis,
-			BannerUrl:      bannerURL,
-		})
+		hits = append(hits, mapAniListMediaToShow(media))
 	}
 
 	return hits, nil
+}
+
+func (p *Provider) Discover(ctx context.Context, opts metadata.DiscoverOpts) (metadata.DiscoverResult, error) {
+	request := graphQLRequest{
+		Query: discoverQuery,
+		Variables: map[string]any{
+			"page":    normalizeutil.Page(opts.Page, defaultPage),
+			"perPage": normalizeutil.Limit(opts.Limit, defaultPageSize, maxPageSize),
+		},
+	}
+
+	var response graphQLDiscoverResponse
+	if err := p.execute(ctx, request, &response); err != nil {
+		return metadata.DiscoverResult{}, err
+	}
+
+	return metadata.DiscoverResult{
+		Trending:        mapAniListMediaList(response.Data.Trending.Media),
+		Popular:         mapAniListMediaList(response.Data.Popular.Media),
+		TopRated:        mapAniListMediaList(response.Data.TopRated.Media),
+		Upcoming:        mapAniListMediaList(response.Data.Upcoming.Media),
+		CurrentlyAiring: mapAniListMediaList(response.Data.CurrentlyAiring.Media),
+	}, nil
 }
 
 func (p *Provider) GetShow(ctx context.Context, externalID string) (metadata.Show, error) {
@@ -249,6 +404,8 @@ func (p *Provider) execute(ctx context.Context, request graphQLRequest, target a
 	switch value := target.(type) {
 	case *graphQLSearchResponse:
 		return firstGraphQLError(value.Errors)
+	case *graphQLDiscoverResponse:
+		return firstGraphQLError(value.Errors)
 	case *graphQLShowResponse:
 		return firstGraphQLError(value.Errors)
 	case *graphQLEpisodesResponse:
@@ -331,6 +488,43 @@ func mapAniListType(value string) string {
 		return "anime"
 	}
 	return strings.ToLower(strings.TrimSpace(value))
+}
+
+func mapAniListMediaList(items []anilistMediaSummary) []metadata.Show {
+	if len(items) == 0 {
+		return []metadata.Show{}
+	}
+
+	mapped := make([]metadata.Show, 0, len(items))
+	for _, item := range items {
+		mapped = append(mapped, mapAniListMediaToShow(item))
+	}
+	return mapped
+}
+
+func mapAniListMediaToShow(media anilistMediaSummary) metadata.Show {
+	titlePreferred, titleOriginal := pickTitles(media.Title)
+	typeValue := mapAniListType(media.Type)
+	bannerURL := normalizeutil.StringPtr(media.BannerImage)
+	synopsis := normalizeutil.StringPtr(media.Description)
+	posterURL := normalizeutil.StringPtr(media.CoverImage.Large)
+	startDate := normalizeAniListDate(media.StartDate)
+	endDate := normalizeAniListDate(media.EndDate)
+
+	return metadata.Show{
+		ExternalID:     formatExternalID(strconv.FormatInt(media.ID, 10)),
+		TitlePreferred: titlePreferred,
+		TitleOriginal:  titleOriginal,
+		AltTitles:      buildAniListAltTitles(titlePreferred, titleOriginal, media.Title, media.Synonyms),
+		Type:           typeValue,
+		Status:         showmodel.NormalizeStatusOrDefault(media.Status, showmodel.StatusOngoing),
+		Synopsis:       synopsis,
+		StartDate:      startDate,
+		EndDate:        endDate,
+		PosterUrl:      posterURL,
+		BannerUrl:      bannerURL,
+		EpisodeCount:   media.Episodes,
+	}
 }
 
 func normalizeAverageScore(value *float64) *float64 {
