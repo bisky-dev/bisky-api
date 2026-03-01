@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"time"
@@ -37,6 +38,9 @@ func NewServer(cfg config.Config, pool *pgxpool.Pool) *Server {
 	q := sqlc.New(pool)
 	apiKeyHandler := apikey.NewHandler(pool)
 	authHandler := auth.NewHandler(q, cfg.TokenEncryptionKey)
+	if err := authHandler.EnsureSeedOwner(context.Background()); err != nil {
+		log.Printf("failed to ensure seed owner user: %v", err)
+	}
 	var hookDispatcher hooks.Dispatcher = hooks.NoopDispatcher{}
 	httpHookDispatcher, err := hooks.NewHTTPDispatcher(pool)
 	if err != nil {

@@ -14,6 +14,11 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+const (
+	seedOwnerEmail    = "owner@local.dev"
+	seedOwnerPassword = "Password123!"
+)
+
 func NewHandler(q *sqlc.Queries, tokenKey string) *Handler {
 	return &Handler{
 		svc: &Service{
@@ -22,6 +27,31 @@ func NewHandler(q *sqlc.Queries, tokenKey string) *Handler {
 			tokenTTL:   time.Hour,
 		},
 	}
+}
+
+func (h *Handler) EnsureSeedOwner(ctx context.Context) error {
+	return h.svc.EnsureSeedOwner(ctx)
+}
+
+func (s *Service) EnsureSeedOwner(ctx context.Context) error {
+	_, err := s.q.GetUserByEmail(ctx, seedOwnerEmail)
+	if err == nil {
+		return nil
+	}
+	if !errors.Is(err, pgx.ErrNoRows) {
+		return err
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(seedOwnerPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	_, err = s.q.CreateUser(ctx, sqlc.CreateUserParams{
+		Email:        seedOwnerEmail,
+		PasswordHash: string(hash),
+	})
+	return err
 }
 
 func (s *Service) Register(ctx context.Context, req registerRequest) (sqlc.User, error) {

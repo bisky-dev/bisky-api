@@ -23,6 +23,12 @@ import (
 //	@Failure		500		{object}	httperr.APIErrorResponse
 //	@Router			/auth/register [post]
 func (h *Handler) Register(c *gin.Context) {
+	const registrationDisabled = true
+	if registrationDisabled {
+		httperr.Abort(c, httperr.New(http.StatusForbidden, "forbidden", "registration is disabled"))
+		return
+	}
+
 	req, ok := httpx.AbortIfMissingContext[registerRequest](c, ctxRegisterRequestKey)
 	if !ok {
 		return
